@@ -1,0 +1,106 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.prioridades",
+ "name": "Prioridades (urgente × importante)",
+ "description": "Matriz de quatro quadros para decidir o que fazer, agendar, delegar ou eliminar.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "negocios",
+  "business",
+  "planner"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Prioridades",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "xy",
+     "count": [
+      2,
+      2
+     ],
+     "children": [
+      {
+       "type": "rect",
+       "x": "1.5mm",
+       "y": "1.5mm",
+       "w": "100% - 3mm",
+       "h": "100% - 3mm",
+       "rx": "3mm",
+       "stroke": "accent"
+      },
+      {
+       "type": "text",
+       "text": [
+        "FAZER AGORA — urgente e importante",
+        "AGENDAR — importante, não urgente",
+        "DELEGAR — urgente, não importante",
+        "ELIMINAR — nem urgente nem importante"
+       ],
+       "x": "5mm",
+       "y": "8mm",
+       "size": "2.8mm",
+       "fill": "accent",
+       "weight": "bold",
+       "select": "j * 2 + i"
+      },
+      {
+       "type": "group",
+       "x": "5mm",
+       "y": "12mm",
+       "w": "100% - 10mm",
+       "h": "100% - 16mm",
+       "children": [
+        {
+         "type": "repeat",
+         "axis": "y",
+         "period": "8mm",
+         "children": [
+          {
+           "type": "hline",
+           "y": "100%",
+           "opacity": 0.35
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

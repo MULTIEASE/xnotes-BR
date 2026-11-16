@@ -1,0 +1,143 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.fechamento-mes",
+ "name": "Fechamento do mês",
+ "description": "Lista de conferência do fechamento mensal de um cliente.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "contabil",
+  "negocios"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Fechamento do mês",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Cliente: ______________________________   Competência: ____/______",
+   "x": "12mm",
+   "y": "30mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "36mm",
+   "w": "100% - 24mm",
+   "h": "88mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 8,
+     "children": [
+      {
+       "type": "rect",
+       "y": "3mm",
+       "w": "4.5mm",
+       "h": "4.5mm",
+       "rx": "0.6mm"
+      },
+      {
+       "type": "text",
+       "text": [
+        "Importar notas de entrada e saída",
+        "Conferir notas de serviço (NFS-e)",
+        "Conciliação bancária",
+        "Apurar impostos do mês",
+        "Folha de pagamento e encargos",
+        "Declarações enviadas",
+        "Guias enviadas ao cliente",
+        "Arquivar documentos"
+       ],
+       "x": "8mm",
+       "y": "7mm",
+       "size": "3.2mm",
+       "fill": "ink"
+      },
+      {
+       "type": "text",
+       "text": "____/____",
+       "x": "100%",
+       "y": "7mm",
+       "size": "2.8mm",
+       "fill": "ink",
+       "align": "end",
+       "opacity": 0.6
+      },
+      {
+       "type": "hline",
+       "y": "100%",
+       "opacity": 0.3
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Pendências do cliente",
+   "x": "12mm",
+   "y": "134mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "136mm",
+   "w": "100% - 24mm",
+   "h": "100% - 160mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Conferido por: ____________________          Data: ____/____",
+   "x": "12mm",
+   "y": "100% - 14mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.7
+  }
+ ]
+}

@@ -1,0 +1,105 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.habitos",
+ "name": "Rastreador de hábitos",
+ "description": "Até 14 hábitos com 31 dias para marcar.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "planner",
+  "diario"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Hábitos do mês: __________",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "group",
+     "x": "30%",
+     "w": "70%",
+     "h": "6mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "x",
+       "count": 31,
+       "children": [
+        {
+         "type": "text",
+         "text": "{i + 1}",
+         "x": "50%",
+         "y": "4mm",
+         "size": "2mm",
+         "fill": "ink",
+         "align": "middle",
+         "opacity": 0.7
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "group",
+     "y": "6mm",
+     "h": "100% - 6mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "count": 14,
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        },
+        {
+         "type": "group",
+         "x": "30%",
+         "w": "70%",
+         "children": [
+          {
+           "type": "repeat",
+           "axis": "x",
+           "count": 31,
+           "children": [
+            {
+             "type": "circle",
+             "cx": "50%",
+             "cy": "50%",
+             "r": "1.4mm",
+             "opacity": 0.6
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

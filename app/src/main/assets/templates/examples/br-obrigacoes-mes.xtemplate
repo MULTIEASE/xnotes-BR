@@ -1,0 +1,192 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.obrigacoes-mes",
+ "name": "Obrigações do mês",
+ "description": "Calendário do mês e lista de obrigações com vencimento e status.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "contabil",
+  "planner"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Obrigações — mês ______",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "45%",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "x",
+     "count": 7,
+     "children": [
+      {
+       "type": "text",
+       "text": [
+        "Seg",
+        "Ter",
+        "Qua",
+        "Qui",
+        "Sex",
+        "Sáb",
+        "Dom"
+       ],
+       "x": "50%",
+       "y": "4mm",
+       "size": "2.8mm",
+       "fill": "accent",
+       "weight": "bold",
+       "align": "middle"
+      }
+     ]
+    },
+    {
+     "type": "group",
+     "y": "6mm",
+     "h": "100% - 6mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "xy",
+       "count": [
+        7,
+        5
+       ],
+       "children": [
+        {
+         "type": "rect",
+         "opacity": 0.5
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "45% + 34mm",
+   "w": "100% - 24mm",
+   "h": "55% - 46mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "rect",
+     "h": "9mm",
+     "fill": "accent",
+     "stroke": "none",
+     "opacity": 0.12
+    },
+    {
+     "type": "hline",
+     "y": "9mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "group",
+     "y": "9mm",
+     "h": "100% - 9mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "period": "9mm",
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Obrigação",
+     "x": "0% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "38%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Clientes",
+     "x": "38% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "62%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Vencimento",
+     "x": "62% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "82%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Feito",
+     "x": "82% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    }
+   ]
+  }
+ ]
+}

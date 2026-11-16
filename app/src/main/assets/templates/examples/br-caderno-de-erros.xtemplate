@@ -1,0 +1,240 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.caderno-de-erros",
+ "name": "Caderno de erros",
+ "description": "Três blocos por página: questão, onde errei, regra certa e artigo ou súmula.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "concursos",
+  "oab",
+  "study"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Caderno de erros",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Matéria: ______________________",
+   "x": "12mm",
+   "y": "27mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.7
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "31mm + 0 * ((100% - 40mm) / 3)",
+   "w": "100% - 24mm",
+   "h": "(100% - 40mm) / 3 - 4mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "2mm",
+     "stroke": "accent"
+    },
+    {
+     "type": "vline",
+     "x": "28%",
+     "stroke": "accent",
+     "opacity": 0.6
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%",
+       "x1": 0,
+       "opacity": 0.5
+      }
+     ]
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "text",
+       "text": [
+        "Questão / banca",
+        "Onde errei",
+        "Regra certa",
+        "Artigo / súmula"
+       ],
+       "x": "2mm",
+       "y": "6mm",
+       "size": "2.7mm",
+       "fill": "accent"
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Revisado:  ( ) 1ª   ( ) 2ª   ( ) 3ª",
+     "x": "100% - 2mm",
+     "y": "100% - 2mm",
+     "size": "2.5mm",
+     "fill": "ink",
+     "align": "end",
+     "opacity": 0.6
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "31mm + 1 * ((100% - 40mm) / 3)",
+   "w": "100% - 24mm",
+   "h": "(100% - 40mm) / 3 - 4mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "2mm",
+     "stroke": "accent"
+    },
+    {
+     "type": "vline",
+     "x": "28%",
+     "stroke": "accent",
+     "opacity": 0.6
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%",
+       "x1": 0,
+       "opacity": 0.5
+      }
+     ]
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "text",
+       "text": [
+        "Questão / banca",
+        "Onde errei",
+        "Regra certa",
+        "Artigo / súmula"
+       ],
+       "x": "2mm",
+       "y": "6mm",
+       "size": "2.7mm",
+       "fill": "accent"
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Revisado:  ( ) 1ª   ( ) 2ª   ( ) 3ª",
+     "x": "100% - 2mm",
+     "y": "100% - 2mm",
+     "size": "2.5mm",
+     "fill": "ink",
+     "align": "end",
+     "opacity": 0.6
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "31mm + 2 * ((100% - 40mm) / 3)",
+   "w": "100% - 24mm",
+   "h": "(100% - 40mm) / 3 - 4mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "2mm",
+     "stroke": "accent"
+    },
+    {
+     "type": "vline",
+     "x": "28%",
+     "stroke": "accent",
+     "opacity": 0.6
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%",
+       "x1": 0,
+       "opacity": 0.5
+      }
+     ]
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "text",
+       "text": [
+        "Questão / banca",
+        "Onde errei",
+        "Regra certa",
+        "Artigo / súmula"
+       ],
+       "x": "2mm",
+       "y": "6mm",
+       "size": "2.7mm",
+       "fill": "accent"
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Revisado:  ( ) 1ª   ( ) 2ª   ( ) 3ª",
+     "x": "100% - 2mm",
+     "y": "100% - 2mm",
+     "size": "2.5mm",
+     "fill": "ink",
+     "align": "end",
+     "opacity": 0.6
+    }
+   ]
+  }
+ ]
+}

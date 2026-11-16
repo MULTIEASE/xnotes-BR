@@ -1,0 +1,110 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.plano-semanal-estudos",
+ "name": "Plano semanal de estudos",
+ "description": "Os sete dias da semana em colunas, para distribuir matérias e horários.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "estudos",
+  "study",
+  "planner"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Plano semanal de estudos",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Semana de ____/____ a ____/____",
+   "x": "12mm",
+   "y": "30mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "36mm",
+   "w": "100% - 24mm",
+   "h": "100% - 48mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm"
+    },
+    {
+     "type": "repeat",
+     "axis": "x",
+     "count": 7,
+     "children": [
+      {
+       "type": "vline",
+       "x": 0,
+       "opacity": 0.6
+      },
+      {
+       "type": "rect",
+       "h": "8mm",
+       "fill": "accent",
+       "stroke": "none",
+       "opacity": 0.12
+      },
+      {
+       "type": "text",
+       "text": [
+        "Seg",
+        "Ter",
+        "Qua",
+        "Qui",
+        "Sex",
+        "Sáb",
+        "Dom"
+       ],
+       "x": "50%",
+       "y": "5.5mm",
+       "size": "3mm",
+       "fill": "accent",
+       "weight": "bold",
+       "align": "middle"
+      },
+      {
+       "type": "group",
+       "y": "8mm",
+       "h": "100% - 8mm",
+       "children": [
+        {
+         "type": "repeat",
+         "axis": "y",
+         "period": "10mm",
+         "children": [
+          {
+           "type": "hline",
+           "y": "100%",
+           "opacity": 0.5
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

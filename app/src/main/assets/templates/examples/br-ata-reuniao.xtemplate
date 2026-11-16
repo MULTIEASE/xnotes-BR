@@ -1,0 +1,218 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.ata-reuniao",
+ "name": "Ata de reunião",
+ "description": "Participantes, pauta, decisões e próximos passos com responsável e prazo.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "negocios",
+  "business"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "5mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "text",
+   "text": "Ata de reunião",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Cliente / assunto: ______________________________   Local: ______________",
+   "x": "12mm",
+   "y": "29mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "text",
+   "text": "Participantes",
+   "x": "12mm",
+   "y": "37mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "rect",
+   "x": "12mm",
+   "y": "39mm",
+   "w": "100% - 24mm",
+   "h": "16mm",
+   "rx": "2mm",
+   "opacity": 0.7
+  },
+  {
+   "type": "text",
+   "text": "Pauta e discussão",
+   "x": "12mm",
+   "y": "62mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "64mm",
+   "w": "100% - 24mm",
+   "h": "100% - 150mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Decisões",
+   "x": "12mm",
+   "y": "100% - 80mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "100% - 78mm",
+   "w": "100% - 24mm",
+   "h": "18mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "100% - 56mm",
+   "w": "100% - 24mm",
+   "h": "44mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "rect",
+     "h": "9mm",
+     "fill": "accent",
+     "stroke": "none",
+     "opacity": 0.12
+    },
+    {
+     "type": "hline",
+     "y": "9mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "group",
+     "y": "9mm",
+     "h": "100% - 9mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "period": "9mm",
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Próximos passos (ação)",
+     "x": "0% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "58%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Responsável",
+     "x": "58% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "82%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Prazo",
+     "x": "82% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,126 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.atendimento",
+ "name": "Atendimento ao cliente",
+ "description": "Ficha de atendimento: cliente, solicitação, encaminhamento e retorno.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "contabil",
+  "negocios"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Atendimento",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Cliente: ______________________________   CNPJ/CPF: ____________________",
+   "x": "12mm",
+   "y": "30mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "text",
+   "text": "Contato: ____________________   Telefone: ______________   Canal: ( ) WhatsApp ( ) E-mail ( ) Presencial",
+   "x": "12mm",
+   "y": "38mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "text",
+   "text": "Solicitação",
+   "x": "12mm",
+   "y": "48mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "50mm",
+   "w": "100% - 24mm",
+   "h": "60mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Encaminhamento / providências",
+   "x": "12mm",
+   "y": "118mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "120mm",
+   "w": "100% - 24mm",
+   "h": "100% - 170mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Retorno ao cliente em: ____/____   Responsável: ________________   ( ) Resolvido",
+   "x": "12mm",
+   "y": "100% - 14mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  }
+ ]
+}

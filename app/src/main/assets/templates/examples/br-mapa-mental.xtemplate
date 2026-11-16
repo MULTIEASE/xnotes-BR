@@ -1,0 +1,95 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.mapa-mental",
+ "name": "Mapa mental",
+ "description": "Um tema no centro e oito ramos para ligar as ideias.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "estudos",
+  "study"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Mapa mental",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "y": "22mm",
+   "h": "100% - 22mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "none",
+     "count": 8,
+     "children": [
+      {
+       "type": "line",
+       "x1": "50%",
+       "y1": "50%",
+       "x2": "50% + cos(i * 45) * 38%",
+       "y2": "50% - sin(i * 45) * 32%",
+       "opacity": 0.35,
+       "dash": [
+        "1.5mm",
+        "1.5mm"
+       ]
+      },
+      {
+       "type": "ellipse",
+       "cx": "50% + cos(i * 45) * 38%",
+       "cy": "50% - sin(i * 45) * 32%",
+       "rx": "20mm",
+       "ry": "10mm",
+       "opacity": 0.6
+      }
+     ]
+    },
+    {
+     "type": "ellipse",
+     "cx": "50%",
+     "cy": "50%",
+     "rx": "32mm",
+     "ry": "16mm",
+     "stroke": "accent",
+     "strokeWidth": "0.5mm"
+    },
+    {
+     "type": "text",
+     "text": "TEMA",
+     "x": "50%",
+     "y": "50%",
+     "size": "4mm",
+     "fill": "accent",
+     "weight": "bold",
+     "align": "middle",
+     "baseline": "middle"
+    }
+   ]
+  }
+ ]
+}

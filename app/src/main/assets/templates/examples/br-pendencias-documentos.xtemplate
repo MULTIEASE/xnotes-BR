@@ -1,0 +1,141 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.pendencias-documentos",
+ "name": "Pendências de documentos",
+ "description": "Documentos pedidos aos clientes, com datas de pedido e recebimento.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "contabil",
+  "negocios"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Pendências de documentos",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "rect",
+     "h": "9mm",
+     "fill": "accent",
+     "stroke": "none",
+     "opacity": 0.12
+    },
+    {
+     "type": "hline",
+     "y": "9mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "group",
+     "y": "9mm",
+     "h": "100% - 9mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "period": "10mm",
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Cliente",
+     "x": "0% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "28%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Documento",
+     "x": "28% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "60%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Pedido em",
+     "x": "60% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "74%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Cobrado",
+     "x": "74% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "87%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Recebido",
+     "x": "87% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    }
+   ]
+  }
+ ]
+}

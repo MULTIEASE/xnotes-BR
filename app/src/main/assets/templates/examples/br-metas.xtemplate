@@ -1,0 +1,88 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.metas",
+ "name": "Metas",
+ "description": "Metas com motivo, passos e prazo, em quatro quadros.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "planner",
+  "diario"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Minhas metas",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "rect",
+       "y": "2mm",
+       "h": "100% - 4mm",
+       "rx": "2mm"
+      },
+      {
+       "type": "text",
+       "text": "Meta {i + 1}: ______________________________",
+       "x": "4mm",
+       "y": "9mm",
+       "size": "3mm",
+       "fill": "accent",
+       "weight": "bold"
+      },
+      {
+       "type": "text",
+       "text": "Por quê:",
+       "x": "4mm",
+       "y": "17mm",
+       "size": "2.6mm",
+       "fill": "accent"
+      },
+      {
+       "type": "text",
+       "text": "Passos:",
+       "x": "4mm",
+       "y": "25mm",
+       "size": "2.6mm",
+       "fill": "accent"
+      },
+      {
+       "type": "text",
+       "text": "Prazo: ____/____",
+       "x": "100% - 4mm",
+       "y": "9mm",
+       "size": "2.6mm",
+       "fill": "ink",
+       "align": "end",
+       "opacity": 0.7
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

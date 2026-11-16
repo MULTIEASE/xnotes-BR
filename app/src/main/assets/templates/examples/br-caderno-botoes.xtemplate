@@ -1,0 +1,117 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.caderno-botoes",
+ "name": "Caderno com botões",
+ "description": "Folha pautada com Assunto, Data e Página no topo e quadrados de ferramentas no rodapé, como um caderno inteligente.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "lines",
+  "estudos",
+  "caderno"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "5mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "text",
+   "text": "Assunto ______________________________",
+   "x": "14mm",
+   "y": "14mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.7
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/____   Pág. ______",
+   "x": "100% - 14mm",
+   "y": "14mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "group",
+   "x": "14mm",
+   "y": "18mm",
+   "w": "100% - 28mm",
+   "h": "100% - 44mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "hline",
+   "y": "100% - 24mm",
+   "x1": "14mm",
+   "x2": "100% - 14mm",
+   "opacity": 0.7
+  },
+  {
+   "type": "group",
+   "x": "14mm",
+   "y": "100% - 20mm",
+   "w": "100% - 28mm",
+   "h": "10mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "x",
+     "count": 14,
+     "children": [
+      {
+       "type": "rect",
+       "x": "0.8mm",
+       "w": "100% - 1.6mm",
+       "opacity": 0.8
+      },
+      {
+       "type": "text",
+       "text": [
+        "Fina",
+        "Média",
+        "Grossa",
+        "Lápis",
+        "Marca-texto",
+        "Borracha",
+        "Preto",
+        "Azul",
+        "Vermelho",
+        "Verde",
+        "Gravar",
+        "Voz",
+        "Desfazer",
+        "Página +"
+       ],
+       "x": "50%",
+       "y": "6.3mm",
+       "size": "1.9mm",
+       "fill": "ink",
+       "align": "middle"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

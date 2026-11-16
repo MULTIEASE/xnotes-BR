@@ -1,0 +1,82 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.flashcards",
+ "name": "Flashcards",
+ "description": "Quatro cartões por página, com pergunta e resposta, para recortar ou revisar.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "estudos",
+  "study"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Flashcards",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 4,
+     "children": [
+      {
+       "type": "rect",
+       "x": 0,
+       "y": "2mm",
+       "w": "100%",
+       "h": "100% - 4mm",
+       "rx": "3mm"
+      },
+      {
+       "type": "vline",
+       "x": "50%",
+       "y1": "4mm",
+       "y2": "100% - 4mm",
+       "dash": [
+        "1.5mm",
+        "1.5mm"
+       ],
+       "opacity": 0.6
+      },
+      {
+       "type": "text",
+       "text": "Pergunta {i + 1}",
+       "x": "3mm",
+       "y": "8mm",
+       "size": "2.6mm",
+       "fill": "accent"
+      },
+      {
+       "type": "text",
+       "text": "Resposta",
+       "x": "50% + 3mm",
+       "y": "8mm",
+       "size": "2.6mm",
+       "fill": "accent"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

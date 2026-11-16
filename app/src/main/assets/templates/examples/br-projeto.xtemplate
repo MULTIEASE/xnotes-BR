@@ -1,0 +1,195 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.projeto",
+ "name": "Projeto",
+ "description": "Objetivo, etapas com responsável e prazo, e riscos.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "negocios",
+  "business"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Projeto: ______________________",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Objetivo",
+   "x": "12mm",
+   "y": "31mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "33mm",
+   "w": "100% - 24mm",
+   "h": "24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "64mm",
+   "w": "100% - 24mm",
+   "h": "100% - 116mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "rect",
+     "h": "9mm",
+     "fill": "accent",
+     "stroke": "none",
+     "opacity": 0.12
+    },
+    {
+     "type": "hline",
+     "y": "9mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "group",
+     "y": "9mm",
+     "h": "100% - 9mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "period": "9mm",
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Etapa",
+     "x": "0% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "50%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Responsável",
+     "x": "50% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "72%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Prazo",
+     "x": "72% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "86%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Status",
+     "x": "86% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Riscos e observações",
+   "x": "12mm",
+   "y": "100% - 45mm",
+   "size": "3mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "100% - 43mm",
+   "w": "100% - 24mm",
+   "h": "31mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

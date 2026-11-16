@@ -1,0 +1,155 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.notas-faltas",
+ "name": "Controle de notas e faltas",
+ "description": "Disciplinas do semestre com notas, média e faltas.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "estudos",
+  "study"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Notas e faltas do semestre",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "rect",
+     "h": "9mm",
+     "fill": "accent",
+     "stroke": "none",
+     "opacity": 0.12
+    },
+    {
+     "type": "hline",
+     "y": "9mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "group",
+     "y": "9mm",
+     "h": "100% - 9mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "period": "10mm",
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Disciplina",
+     "x": "0% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "46%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "N1",
+     "x": "46% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "56%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "N2",
+     "x": "56% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "66%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "N3",
+     "x": "66% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "76%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Média",
+     "x": "76% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "88%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Faltas",
+     "x": "88% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    }
+   ]
+  }
+ ]
+}

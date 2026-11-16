@@ -1,0 +1,115 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.quadro-tarefas",
+ "name": "Quadro de tarefas",
+ "description": "Três colunas: a fazer, fazendo e feito.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "negocios",
+  "business"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Quadro de tarefas",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "x",
+     "count": 3,
+     "children": [
+      {
+       "type": "rect",
+       "x": "1.5mm",
+       "w": "100% - 3mm",
+       "rx": "2mm",
+       "fill": "accent",
+       "stroke": "none",
+       "opacity": 0.07
+      },
+      {
+       "type": "rect",
+       "x": "1.5mm",
+       "w": "100% - 3mm",
+       "rx": "2mm",
+       "opacity": 0.6
+      },
+      {
+       "type": "text",
+       "text": [
+        "A FAZER",
+        "FAZENDO",
+        "FEITO"
+       ],
+       "x": "50%",
+       "y": "7mm",
+       "size": "3.2mm",
+       "fill": "accent",
+       "weight": "bold",
+       "align": "middle"
+      },
+      {
+       "type": "group",
+       "x": "5mm",
+       "y": "12mm",
+       "w": "100% - 10mm",
+       "h": "100% - 14mm",
+       "children": [
+        {
+         "type": "repeat",
+         "axis": "y",
+         "period": "22mm",
+         "fit": "space",
+         "children": [
+          {
+           "type": "rect",
+           "y": "2mm",
+           "h": "18mm",
+           "rx": "1.5mm",
+           "opacity": 0.4,
+           "dash": [
+            "1mm",
+            "1mm"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

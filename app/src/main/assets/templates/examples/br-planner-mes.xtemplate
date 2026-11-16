@@ -1,0 +1,114 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.planner-mes",
+ "name": "Calendário do mês",
+ "description": "Calendário em grade com os dias da semana e um espaço para metas do mês.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "planner"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Mês: ______________   Ano: ______",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 75mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "x",
+     "count": 7,
+     "children": [
+      {
+       "type": "text",
+       "text": [
+        "Seg",
+        "Ter",
+        "Qua",
+        "Qui",
+        "Sex",
+        "Sáb",
+        "Dom"
+       ],
+       "x": "50%",
+       "y": "4mm",
+       "size": "3mm",
+       "fill": "accent",
+       "weight": "bold",
+       "align": "middle"
+      }
+     ]
+    },
+    {
+     "type": "group",
+     "y": "7mm",
+     "h": "100% - 7mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "xy",
+       "count": [
+        7,
+        6
+       ],
+       "children": [
+        {
+         "type": "rect",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Metas e lembretes do mês",
+   "x": "12mm",
+   "y": "100% - 40mm",
+   "size": "3.2mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "100% - 37mm",
+   "w": "100% - 24mm",
+   "h": "25mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

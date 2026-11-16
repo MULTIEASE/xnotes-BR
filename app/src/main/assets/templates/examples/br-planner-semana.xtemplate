@@ -1,0 +1,86 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.planner-semana",
+ "name": "Planner da semana",
+ "description": "Sete quadros para os dias e um para as prioridades da semana.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "planner"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Minha semana",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Semana de ____/____ a ____/____",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "xy",
+     "count": [
+      2,
+      4
+     ],
+     "children": [
+      {
+       "type": "rect",
+       "x": "1.5mm",
+       "y": "1.5mm",
+       "w": "100% - 3mm",
+       "h": "100% - 3mm",
+       "rx": "2mm"
+      },
+      {
+       "type": "text",
+       "text": [
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado",
+        "Domingo",
+        "Prioridades"
+       ],
+       "x": "5mm",
+       "y": "7mm",
+       "size": "3mm",
+       "fill": "accent",
+       "weight": "bold",
+       "select": "j * 2 + i"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

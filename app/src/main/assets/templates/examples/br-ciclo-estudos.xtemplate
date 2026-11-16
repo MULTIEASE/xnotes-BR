@@ -1,0 +1,170 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.ciclo-estudos",
+ "name": "Ciclo de estudos",
+ "description": "Matérias do ciclo com horas planejadas e marcação de cada volta.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "concursos",
+  "oab",
+  "study"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Ciclo de estudos",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "100% - 24mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "rect",
+     "rx": "1mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "rect",
+     "h": "9mm",
+     "fill": "accent",
+     "stroke": "none",
+     "opacity": 0.12
+    },
+    {
+     "type": "hline",
+     "y": "9mm",
+     "strokeWidth": "0.35mm"
+    },
+    {
+     "type": "group",
+     "y": "9mm",
+     "h": "100% - 9mm",
+     "children": [
+      {
+       "type": "repeat",
+       "axis": "y",
+       "period": "9mm",
+       "children": [
+        {
+         "type": "hline",
+         "y": "100%",
+         "opacity": 0.6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "Matéria",
+     "x": "0% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "40%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "Horas",
+     "x": "40% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "50%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "1ª",
+     "x": "50% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "60%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "2ª",
+     "x": "60% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "70%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "3ª",
+     "x": "70% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "80%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "4ª",
+     "x": "80% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    },
+    {
+     "type": "vline",
+     "x": "90%",
+     "opacity": 0.7
+    },
+    {
+     "type": "text",
+     "text": "5ª",
+     "x": "90% + 2mm",
+     "y": "9mm - 3mm",
+     "size": "2.8mm",
+     "fill": "accent",
+     "weight": "bold"
+    }
+   ]
+  }
+ ]
+}

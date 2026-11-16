@@ -1,0 +1,107 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.resumo-aula",
+ "name": "Resumo de aula",
+ "description": "Matéria, professor e tema no topo, pautado para o resumo e um quadro de dúvidas.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "estudos",
+  "study"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "5mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "text",
+   "text": "Resumo de aula",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Matéria: ____________________   Professor(a): ____________________",
+   "x": "12mm",
+   "y": "30mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "text",
+   "text": "Tema: ______________________________________________",
+   "x": "12mm",
+   "y": "38mm",
+   "size": "3mm",
+   "fill": "ink",
+   "opacity": 0.75
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "44mm",
+   "w": "100% - 24mm",
+   "h": "100% - 100mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "x": "12mm",
+   "y": "100% - 50mm",
+   "w": "100% - 24mm",
+   "h": "38mm",
+   "rx": "2mm",
+   "stroke": "accent"
+  },
+  {
+   "type": "text",
+   "text": "Dúvidas para perguntar",
+   "x": "16mm",
+   "y": "100% - 44mm",
+   "size": "2.8mm",
+   "fill": "accent",
+   "weight": "bold"
+  }
+ ]
+}

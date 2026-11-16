@@ -369,7 +369,21 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     /** The sticker library: encoded image files kept under filesDir across sessions (never purged).
      *  Only [java.io.File] handles are held in memory; thumbnails and inserts decode from disk. */
     // The directory keeps its old "stamps" name so libraries saved before the rename still load.
-    private val stickerDir = java.io.File(appContext.filesDir, "stamps").apply { mkdirs() }
+    private val stickerDir = java.io.File(appContext.filesDir, "stamps").apply { mkdirs(); seedBrStamps(this) }
+
+    /** xnotes BR: put the bundled stamps (CONFERIDO, PAGO...) into the sticker library once. */
+    private fun seedBrStamps(dir: java.io.File) {
+        val marker = java.io.File(appContext.filesDir, "stamps-br-seeded-1")
+        if (marker.exists()) return
+        runCatching {
+            val names = appContext.assets.list("stamps").orEmpty().sorted()
+            names.forEachIndexed { i, name ->
+                val out = java.io.File(dir, "stamp-0000000000${i.toString().padStart(2, '0')}-br-$name")
+                if (!out.exists()) appContext.assets.open("stamps/$name").use { input -> out.outputStream().use { input.copyTo(it) } }
+            }
+            marker.writeText("1")
+        }
+    }
 
     /** Sticker files, oldest first (names embed the add time so a plain name sort is stable). */
     var stickers: List<java.io.File> by mutableStateOf(listStickers())

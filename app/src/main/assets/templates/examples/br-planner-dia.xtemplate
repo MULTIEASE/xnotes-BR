@@ -1,0 +1,156 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.planner-dia",
+ "name": "Planner do dia",
+ "description": "Agenda por hora, tarefas do dia e espaço para anotações.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "planner"
+ ],
+ "items": [
+  {
+   "type": "text",
+   "text": "Meu dia",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "28mm",
+   "w": "58% - 12mm",
+   "h": "100% - 40mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 15,
+     "children": [
+      {
+       "type": "hline",
+       "y": 0,
+       "opacity": 0.7
+      },
+      {
+       "type": "hline",
+       "y": "50%",
+       "x1": "13mm",
+       "dash": [
+        "1mm",
+        "1mm"
+       ],
+       "opacity": 0.4
+      },
+      {
+       "type": "text",
+       "text": "{7 + i:02}:00",
+       "x": 0,
+       "y": "4mm",
+       "size": "2.8mm",
+       "fill": "ink",
+       "opacity": 0.7
+      }
+     ]
+    },
+    {
+     "type": "hline",
+     "y": "100%"
+    },
+    {
+     "type": "vline",
+     "x": "12mm",
+     "opacity": 0.4
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Tarefas",
+   "x": "58% + 6mm",
+   "y": "32mm",
+   "size": "3.2mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "58% + 6mm",
+   "y": "35mm",
+   "w": "42% - 18mm",
+   "h": "45% - 35mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "9mm",
+     "children": [
+      {
+       "type": "rect",
+       "x": 0,
+       "y": "2.5mm",
+       "w": "4mm",
+       "h": "4mm",
+       "rx": "0.6mm"
+      },
+      {
+       "type": "hline",
+       "y": "6.5mm",
+       "x1": "7mm"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Anotações",
+   "x": "58% + 6mm",
+   "y": "50% + 4mm",
+   "size": "3.2mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "58% + 6mm",
+   "y": "50% + 8mm",
+   "w": "42% - 18mm",
+   "h": "50% - 20mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "8mm",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

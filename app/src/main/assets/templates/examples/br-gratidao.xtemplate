@@ -1,0 +1,125 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.gratidao",
+ "name": "Diário de gratidão",
+ "description": "Três coisas boas do dia, um destaque e como me sinto.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "diario"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "5mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "text",
+   "text": "Diário",
+   "x": "12mm",
+   "y": "15mm",
+   "size": "5mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "text",
+   "text": "Data ____/____/______",
+   "x": "100% - 12mm",
+   "y": "15mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "hline",
+   "y": "22mm",
+   "x1": "12mm",
+   "x2": "100% - 12mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "text",
+   "text": "Hoje sou grato(a) por:",
+   "x": "12mm",
+   "y": "31mm",
+   "size": "3.2mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "34mm",
+   "w": "100% - 24mm",
+   "h": "30mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "count": 3,
+     "children": [
+      {
+       "type": "text",
+       "text": "{i + 1}.",
+       "x": 0,
+       "y": "7mm",
+       "size": "3mm",
+       "fill": "ink"
+      },
+      {
+       "type": "hline",
+       "y": "100%",
+       "x1": "6mm"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "O melhor momento do dia:",
+   "x": "12mm",
+   "y": "74mm",
+   "size": "3.2mm",
+   "fill": "accent",
+   "weight": "bold"
+  },
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "76mm",
+   "w": "100% - 24mm",
+   "h": "100% - 120mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "text": "Como me sinto:  ( ) mal   ( ) normal   ( ) bem   ( ) ótimo",
+   "x": "12mm",
+   "y": "100% - 30mm",
+   "size": "3.2mm",
+   "fill": "ink"
+  }
+ ]
+}
