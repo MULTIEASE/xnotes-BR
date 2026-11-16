@@ -1205,7 +1205,7 @@
     <string name="action_toggle_notebook">Notebook mode</string>
     <string name="trace_image">Trace over (fade and lock)</string>
     <string name="trace_image_done">Picture faded and locked. Draw over it; long-press it to remove it and keep your drawing.</string>
-    <string name="err_trace_image">This picture can't be faded.</string>
+    <string name="err_trace_image">This picture can\'t be faded.</string>
     <string name="remove_image_keep_drawing">Remove picture, keep drawing</string>
     <string name="dictation_unavailable">This device has no speech recognizer for dictation.</string>
     <string name="dictation_error">Dictation stopped. Try again.</string>
