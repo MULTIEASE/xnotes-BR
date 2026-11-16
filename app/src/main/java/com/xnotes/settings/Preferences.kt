@@ -244,7 +244,7 @@ data class Preferences(
             val zoomLockPan = o.optString("zoom_lock_pan", "single").let { if (it == "double" || it == "none") it else "single" }
             val tapActions = setOf(
                 "none", "undo", "redo", "toggle_pan", "toggle_eraser", "toggle_lasso", "toggle_previous",
-                "next_pen", "prev_pen", "thicker", "thinner", "next_colour", "prev_colour", "next_page", "prev_page", "toggle_notebook",
+                "next_pen", "prev_pen", "thicker", "thinner", "next_colour", "prev_colour", "next_page", "prev_page", "toggle_notebook", "dictate",
             )
             fun tapAction(key: String, default: String = "none") = o.optString(key, default).let { if (it in tapActions) it else default }
             val legacySeed = Rgba.fromHex(o.optString("material_seed"))

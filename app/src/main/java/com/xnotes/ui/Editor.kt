@@ -6430,7 +6430,53 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         action == "next_page" -> nextPage()
         action == "prev_page" -> prevPage()
         action == "toggle_notebook" -> toggleNotebookBar()
+        action == "dictate" -> toggleDictation()
         else -> Unit
+    }
+
+    // --- xnotes BR: ditado (fala vira texto na nota) ---
+
+    var dictating by mutableStateOf(false)
+        private set
+
+    private val dictation by lazy {
+        com.xnotes.platform.Dictation(
+            viewContext,
+            onText = { insertDictated(it) },
+            onState = { dictating = it },
+            onError = { code ->
+                message = appContext.getString(
+                    when (code) {
+                        "unavailable" -> R.string.dictation_unavailable
+                        "permission" -> R.string.err_mic_needed
+                        else -> R.string.dictation_error
+                    },
+                )
+            },
+        )
+    }
+
+    fun toggleDictation() {
+        if (dictation.listening) { dictation.stop(); return }
+        val mic = androidx.core.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.RECORD_AUDIO) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (!mic) {
+            (viewContext as? android.app.Activity)?.requestPermissions(arrayOf(android.Manifest.permission.RECORD_AUDIO), 4711)
+            return
+        }
+        if (!flowText.active) {
+            message = appContext.getString(R.string.dictation_need_caret)
+            return
+        }
+        message = appContext.getString(R.string.dictation_listening)
+        dictation.start()
+    }
+
+    private fun insertDictated(text: String) {
+        if (!flowText.active) { dictation.stop(); return }
+        val sentence = text.replaceFirstChar { it.titlecase(java.util.Locale.getDefault()) }
+        val end = if (sentence.last() in ".!?") " " else ". "
+        flowText.replaceExternal(flowText.selection, sentence + end)
     }
 
     // --- xnotes BR: Modo Caderno ---

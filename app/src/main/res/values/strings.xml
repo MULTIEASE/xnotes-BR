@@ -1207,4 +1207,11 @@
     <string name="trace_image_done">Picture faded and locked. Draw over it; long-press it to remove it and keep your drawing.</string>
     <string name="err_trace_image">This picture can't be faded.</string>
     <string name="remove_image_keep_drawing">Remove picture, keep drawing</string>
+    <string name="dictation_unavailable">This device has no speech recognizer for dictation.</string>
+    <string name="dictation_error">Dictation stopped. Try again.</string>
+    <string name="dictation_need_caret">Pick the Text tool and tap where the dictation should go, then press Dictate.</string>
+    <string name="dictation_listening">Listening… speak and the text appears on the page.</string>
+    <string name="action_dictate">Dictate (speech to text)</string>
+    <string name="nb_dictate">Dictate</string>
+    <string name="nb_dictate_stop">Stop</string>
 </resources>

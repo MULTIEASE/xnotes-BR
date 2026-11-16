@@ -71,6 +71,10 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
             }
             Box(Modifier.width(1.dp).height(40.dp).background(line))
             LabelBox(stringResource(R.string.nb_record), false, ink, line, dot = Color(0xFFB42318)) { onRecord() }
+            LabelBox(
+                stringResource(if (editor.dictating) R.string.nb_dictate_stop else R.string.nb_dictate),
+                editor.dictating, ink, line, dot = if (editor.dictating) Color(0xFFB42318) else null,
+            ) { editor.toggleDictation() }
             LabelBox(stringResource(R.string.undo), false, ink, line) { editor.undo() }
             LabelBox(stringResource(R.string.nb_new_page), false, ink, line) { editor.addPage() }
         }

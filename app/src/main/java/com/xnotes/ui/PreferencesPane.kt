@@ -114,6 +114,7 @@ private val tapGestureOptions = listOf(
     "next_page" to R.string.next_page,
     "prev_page" to R.string.previous_page,
     "toggle_notebook" to R.string.action_toggle_notebook,
+    "dictate" to R.string.action_dictate,
 )
 
 /**
