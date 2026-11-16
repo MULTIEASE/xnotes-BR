@@ -1183,4 +1183,8 @@
     <string name="nb_new_page">Página +</string>
     <string name="pref_notebook_bar">Modo Caderno: quadrados de ferramentas embaixo da página</string>
     <string name="action_toggle_notebook">Modo Caderno</string>
+    <string name="trace_image">Decalque (deixar transparente e travar)</string>
+    <string name="trace_image_done">Imagem transparente e travada. Desenhe por cima; segure sobre ela para apagar a imagem e manter o desenho.</string>
+    <string name="err_trace_image">Não foi possível deixar esta imagem transparente.</string>
+    <string name="remove_image_keep_drawing">Apagar imagem e manter o desenho</string>
 </resources>

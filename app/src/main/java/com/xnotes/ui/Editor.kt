@@ -1970,6 +1970,64 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         }
     }
 
+    // --- xnotes BR: decalque (tracing over a faded, locked picture) ---
+
+    override fun canTraceSelection(): Boolean = controller.selectedItems().singleOrNull() is ImageItem
+
+    override fun traceSelectedImage() {
+        val item = controller.selectedItems().singleOrNull() as? ImageItem ?: return
+        val image = item.image
+        if (com.xnotes.platform.ImageDecoder.isVector(image.file.path)) {
+            message = appContext.getString(R.string.err_trace_image)
+            return
+        }
+        autosaveScope.launch {
+            val faded = withContext(Dispatchers.IO) { fadedCopy(image) }
+            if (faded == null || item.image !== image) {
+                if (faded == null) message = appContext.getString(R.string.err_trace_image)
+                return@launch
+            }
+            controller.clearSelection()
+            val cmd = com.xnotes.core.history.TraceImage(item, image, faded)
+            val was = touchedRegions(cmd)
+            cmd.redo()
+            history.push(cmd)
+            state.document.dirty = true
+            spanning(was, touchedRegions(cmd))?.let { state.repairInkRegions(it) } ?: state.refreshAllInk()
+            refreshContent()
+            view.requestRender()
+            message = appContext.getString(R.string.trace_image_done)
+        }
+    }
+
+    /** [image] at about a third of its opacity, as a new PNG; null when it failed. IO. */
+    private fun fadedCopy(image: com.xnotes.core.model.ImageData): com.xnotes.core.model.ImageData? = runCatching {
+        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        android.graphics.BitmapFactory.decodeFile(image.file.path, bounds)
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 3000) sample *= 2
+        val src = android.graphics.BitmapFactory.decodeFile(image.file.path, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+            ?: return@runCatching null
+        val out = android.graphics.Bitmap.createBitmap(src.width, src.height, android.graphics.Bitmap.Config.ARGB_8888)
+        android.graphics.Canvas(out).drawBitmap(src, 0f, 0f, android.graphics.Paint().apply { alpha = 90 })
+        src.recycle()
+        val file = java.io.File.createTempFile("img", null, imageDir)
+        file.outputStream().use { out.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+        val data = com.xnotes.core.model.ImageData(file, out.width, out.height)
+        out.recycle()
+        data
+    }.getOrNull()
+
+    override fun removeLockedImage(item: com.xnotes.core.model.CanvasItem) {
+        val page = itemPageLocator()(item) ?: return
+        if (!page.items.remove(item)) return
+        history.push(EraseItems(listOf(page to item)))
+        state.document.dirty = true
+        state.refreshAllInk()
+        refreshContent()
+        view.requestRender()
+    }
+
     override fun copySelectionAsImage() {
         val bmp = renderSelectionBitmap()
         val ok = bmp != null && com.xnotes.platform.SystemClipboard.putImage(appContext, bmp, "xnotes selection")

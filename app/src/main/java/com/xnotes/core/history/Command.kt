@@ -451,6 +451,27 @@ class ReplaceImage(
     override fun touched(locate: (CanvasItem) -> Page?) = pagedItems(listOf(item), locate)
 }
 
+/** xnotes BR: a picture faded for tracing over (decalque) and locked, or back as it was. */
+class TraceImage(
+    private val item: ImageItem,
+    private val before: ImageData,
+    private val after: ImageData,
+) : Command {
+    private val lockedBefore = item.locked
+
+    override fun redo() {
+        item.image = after
+        item.locked = true
+    }
+
+    override fun undo() {
+        item.image = before
+        item.locked = lockedBefore
+    }
+
+    override fun touched(locate: (CanvasItem) -> Page?) = pagedItems(listOf(item), locate)
+}
+
 /** Pages turned or resized: each one's [PageShape] before and after. The view repaints them whole. */
 class ReshapePages(
     private val pages: List<Page>,

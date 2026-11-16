@@ -169,6 +169,12 @@ interface SelectionMenuHost : SwatchHost {
 
     /** Put that picture in crop mode, the frame standing over it. */
     fun startCrop()
+
+    /** xnotes BR: whether the selection is a lone picture that can become a tracing (decalque). */
+    fun canTraceSelection(): Boolean = false
+
+    /** xnotes BR: fade that picture and lock it, so the pen draws over it without moving it. */
+    fun traceSelectedImage() {}
 }
 
 /**
@@ -325,6 +331,12 @@ fun SelectionMenu(
                         text = { Text(stringResource(R.string.lock)) },
                         onClick = { overflowOpen = false; host.lockSelection() },
                     )
+                    if (host.canTraceSelection()) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.trace_image)) },
+                            onClick = { overflowOpen = false; host.traceSelectedImage() },
+                        )
+                    }
                 }
                 if (styleOpen) {
                     // Closing settles any preview the slider left open.
@@ -634,6 +646,9 @@ interface LongPressMenuHost {
 
     /** Release [item], so it can be selected again. */
     fun unlockItem(item: com.xnotes.core.model.CanvasItem)
+
+    /** xnotes BR: take a locked picture off the page, keeping everything drawn over it. */
+    fun removeLockedImage(item: com.xnotes.core.model.CanvasItem) {}
 }
 
 /**
@@ -655,6 +670,11 @@ fun LongPressMenu(host: LongPressMenuHost, onInsertImageAt: (com.xnotes.core.geo
                 DropdownMenuItem(text = { Text(stringResource(R.string.unlock)) }, onClick = {
                     host.unlockItem(locked); host.dismissContextMenu()
                 })
+                if (locked is com.xnotes.core.model.ImageItem) {
+                    DropdownMenuItem(text = { Text(stringResource(R.string.remove_image_keep_drawing)) }, onClick = {
+                        host.removeLockedImage(locked); host.dismissContextMenu()
+                    })
+                }
                 return@DropdownMenu
             }
             if (host.hasClipboardItems) {
