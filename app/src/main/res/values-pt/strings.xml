@@ -1175,4 +1175,12 @@
     <string name="action_thinner">Traço mais fino</string>
     <string name="action_next_colour">Próxima cor</string>
     <string name="action_prev_colour">Cor anterior</string>
+    <string name="nb_fine">Fina</string>
+    <string name="nb_medium">Média</string>
+    <string name="nb_thick">Grossa</string>
+    <string name="nb_pencil">Lápis</string>
+    <string name="nb_record">Gravar</string>
+    <string name="nb_new_page">Página +</string>
+    <string name="pref_notebook_bar">Modo Caderno: quadrados de ferramentas embaixo da página</string>
+    <string name="action_toggle_notebook">Modo Caderno</string>
 </resources>

@@ -2867,6 +2867,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         settings = settings.copy(prefs = p)
         for (editor in listOfNotNull(this, sibling)) {
             editor.fullscreen = p.startFullscreen ?: true
+            editor.notebookBar = p.notebookBar
             editor.applyPagePrefsToState(p)
             editor.republishFlow(invalidate = true)
             editor.state.invalidateAllCaches()
@@ -6370,8 +6371,25 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         action == "prev_colour" -> cycleColour(-1)
         action == "next_page" -> nextPage()
         action == "prev_page" -> prevPage()
+        action == "toggle_notebook" -> toggleNotebookBar()
         else -> Unit
     }
+
+    // --- xnotes BR: Modo Caderno ---
+
+    /** Whether the notebook bar (printed-style tool boxes) shows at the foot of the page. */
+    var notebookBar by mutableStateOf(preferences.notebookBar)
+        private set
+
+    fun toggleNotebookBar() = applyPreferences(preferences.copy(notebookBar = !preferences.notebookBar))
+
+    fun notebookPen(width: Double) {
+        selectTool(Tool.PEN)
+        val cfg = controller.configFor(Tool.PEN)
+        updateToolConfig(Tool.PEN, cfg.copy(baseWidth = com.xnotes.core.tools.ToolConversions.snapWidth(Tool.PEN, width)))
+    }
+
+    fun notebookTool(t: Tool) = selectTool(t)
 
     // --- xnotes BR: pen side-button gestures and the actions they run ---
 

@@ -53,7 +53,10 @@ enum class ToolbarItem(val id: String) {
     MINIMAP("minimap"),
 
     /** Notes only: opens and closes room on a page. Last, so a stored bar missing older items too still gets it right after the lasso. */
-    INSERT_SPACE("insert_space");
+    INSERT_SPACE("insert_space"),
+
+    /** xnotes BR, notes only: shows or hides the Modo Caderno bar of tool boxes under the page. */
+    NOTEBOOK("notebook");
 
     companion object {
         fun fromId(id: String?): ToolbarItem? = entries.firstOrNull { it.id == id }
@@ -158,6 +161,7 @@ data class ToolbarLayout(val sections: List<ToolbarSection>) {
             ToolbarItem.WAND to ToolbarItem.LASSO,
             ToolbarItem.TAPE to ToolbarItem.WAND,
             ToolbarItem.INSERT_SPACE to ToolbarItem.LASSO,
+            ToolbarItem.NOTEBOOK to ToolbarItem.FULLSCREEN,
             ToolbarItem.MARKUP to ToolbarItem.TEXT_BOX,
         )
 
@@ -197,7 +201,7 @@ data class ToolbarLayout(val sections: List<ToolbarSection>) {
             listOf(ToolbarItem.UNDO, ToolbarItem.REDO),
             listOf(ToolbarItem.PAGE_NAV, ToolbarItem.STYLES, ToolbarItem.MARGINS, ToolbarItem.VIEW),
             listOf(ToolbarItem.ZOOM, ToolbarItem.FIT, ToolbarItem.ZOOM_LOCK),
-            listOf(ToolbarItem.FULLSCREEN),
+            listOf(ToolbarItem.FULLSCREEN, ToolbarItem.NOTEBOOK),
         )
 
         /** Mirrors the hardcoded canvas bar (see InfiniteToolbar.kt). */

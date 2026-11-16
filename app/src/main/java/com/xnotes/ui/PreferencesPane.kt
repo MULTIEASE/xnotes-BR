@@ -113,6 +113,7 @@ private val tapGestureOptions = listOf(
     "prev_colour" to R.string.action_prev_colour,
     "next_page" to R.string.next_page,
     "prev_page" to R.string.previous_page,
+    "toggle_notebook" to R.string.action_toggle_notebook,
 )
 
 /**
@@ -264,6 +265,7 @@ fun PreferencesPane(
                 }
             }
             CheckRow(stringResource(R.string.pref_start_fullscreen), editor.fullscreen) { editor.setFullscreenPref(it) }
+            CheckRow(stringResource(R.string.pref_notebook_bar), prefs.notebookBar) { update(prefs.copy(notebookBar = it)) }
 
             HorizontalDivider(color = palette.border.toComposeColor())
             SectionTitle(stringResource(R.string.pref_input))

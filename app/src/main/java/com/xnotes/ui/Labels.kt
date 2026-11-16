@@ -113,6 +113,7 @@ val ToolbarItem.labelRes: Int
         ToolbarItem.FIT -> R.string.toolbar_fit
         ToolbarItem.ZOOM_LOCK -> R.string.toolbar_zoom_lock
         ToolbarItem.FULLSCREEN -> R.string.toolbar_fullscreen
+        ToolbarItem.NOTEBOOK -> R.string.action_toggle_notebook
         ToolbarItem.COLORS -> R.string.toolbar_colours
         ToolbarItem.WAYPOINTS -> R.string.toolbar_waypoints
         ToolbarItem.MINIMAP -> R.string.toolbar_minimap

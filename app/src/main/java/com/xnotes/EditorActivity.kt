@@ -1597,6 +1597,10 @@ private fun EditorPane(
                         }
                     }
                 }
+                // xnotes BR: Modo Caderno, the printed-style tool boxes under the page.
+                if (editor.notebookBar) {
+                    com.xnotes.ui.NotebookBar(editor, onRecord = { actions.onRecordAudio(editor) })
+                }
                 // Last child of the resized column: rides directly above the soft keyboard.
                 com.xnotes.ui.TextFormatBar(editor)
             }

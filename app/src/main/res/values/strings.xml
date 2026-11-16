@@ -1195,4 +1195,12 @@
     <string name="action_thinner">Thinner stroke</string>
     <string name="action_next_colour">Next colour</string>
     <string name="action_prev_colour">Previous colour</string>
+    <string name="nb_fine">Fine</string>
+    <string name="nb_medium">Medium</string>
+    <string name="nb_thick">Thick</string>
+    <string name="nb_pencil">Pencil</string>
+    <string name="nb_record">Record</string>
+    <string name="nb_new_page">Page +</string>
+    <string name="pref_notebook_bar">Notebook mode: tool boxes under the page</string>
+    <string name="action_toggle_notebook">Notebook mode</string>
 </resources>
