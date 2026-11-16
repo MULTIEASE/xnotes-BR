@@ -804,7 +804,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         val canvas = infinite
         canvas.replaceDocument(doc)
         canvas.applyPalette(palette)
-        canvas.applyInputPrefs(settings.prefs.fingerDraws, controller.penButtonTool, settings.prefs.zoomLockPan, settings.prefs.detectShapes)
+        canvas.applyInputPrefs(settings.prefs.fingerDraws, controller.penButtonTool, settings.prefs.zoomLockPan, settings.prefs.detectShapes, controller.penButton2Tool)
         canvas.applyZoomRange(settings.prefs.canvasMinZoomPercent, settings.prefs.canvasMaxZoomPercent)
         canvas.onContentChanged = { scheduleCanvasAutosave() }
         // Only a canvas living under the granted folder autosaves; anything else is left alone,
@@ -2774,6 +2774,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
             if (p.penButtonTool == "none") null else (Tool.fromId(p.penButtonTool) ?: Tool.ERASER),
             p.zoomLockPan,
             p.detectShapes,
+            if (p.penButton2Tool == "none") null else (Tool.fromId(p.penButton2Tool) ?: Tool.ERASER),
         )
         infiniteOrNull?.applyZoomRange(p.canvasMinZoomPercent, p.canvasMaxZoomPercent)
         // Both surfaces' pads: the switch is about the device, not about one of them.
@@ -2795,6 +2796,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         flowText.slashCommands = p.slashCommands
         flowText.highlight = { toolbarInk() }
         controller.penButtonTool = if (p.penButtonTool == "none") null else (Tool.fromId(p.penButtonTool) ?: Tool.ERASER)
+        controller.penButton2Tool = if (p.penButton2Tool == "none") null else (Tool.fromId(p.penButton2Tool) ?: Tool.ERASER)
         controller.penButtonHover = p.penButtonHover
         state.sideMargin = p.sideMargin
         state.pageBorders = !p.hidePageBorders
@@ -6346,7 +6348,71 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         action == "toggle_eraser" -> toggleTool(Tool.ERASER)
         action == "toggle_lasso" -> toggleTool(Tool.LASSO)
         action == "toggle_previous" -> toggleToPreviousTool()
+        action == "next_pen" -> cyclePen(1)
+        action == "prev_pen" -> cyclePen(-1)
+        action == "thicker" -> nudgeWidth(1)
+        action == "thinner" -> nudgeWidth(-1)
+        action == "next_colour" -> cycleColour(1)
+        action == "prev_colour" -> cycleColour(-1)
+        action == "next_page" -> nextPage()
+        action == "prev_page" -> prevPage()
         else -> Unit
+    }
+
+    // --- xnotes BR: pen side-button gestures and the actions they run ---
+
+    /** A click (or double click, when [double]) of side button [button] (1 = lower, 2 = upper). */
+    fun onPenButtonGesture(button: Int, double: Boolean) {
+        val p = preferences
+        val action = when (button) {
+            1 -> if (double) p.penButton1Double else p.penButton1Click
+            else -> if (double) p.penButton2Double else p.penButton2Click
+        }
+        if (action != "none") dispatchTapGesture(action)
+    }
+
+    /** Whether side button [button] has a double-click action, so a single click waits to be sure. */
+    fun penButtonWantsDouble(button: Int): Boolean =
+        (if (button == 1) preferences.penButton1Double else preferences.penButton2Double) != "none"
+
+    private val penCycle = listOf(Tool.PEN, Tool.CALLIGRAPHY, Tool.TAPER, Tool.DASHED, Tool.HIGHLIGHTER)
+
+    private fun cyclePen(step: Int) {
+        val i = penCycle.indexOf(controller.tool)
+        val base = if (i < 0) (if (step > 0) -1 else 0) else i
+        val next = penCycle[(base + step).mod(penCycle.size)]
+        selectTool(next)
+        penNotice(next)
+    }
+
+    private fun nudgeWidth(step: Int) {
+        val t = if (controller.tool.isStroke) controller.tool else Tool.PEN
+        if (t != controller.tool) selectTool(t)
+        val cfg = controller.configFor(t)
+        val delta = if (t == Tool.HIGHLIGHTER) 4.0 else com.xnotes.core.tools.ToolConversions.WIDTH_STEP
+        val w = com.xnotes.core.tools.ToolConversions.snapWidth(t, cfg.baseWidth + step * delta)
+        updateToolConfig(t, cfg.copy(baseWidth = w))
+        penNotice(t)
+    }
+
+    private fun cycleColour(step: Int) {
+        if (toolbarColors.isEmpty()) return
+        pickColor((activeColorIndex + step).mod(toolbarColors.size))
+        penNotice(controller.tool)
+    }
+
+    private var penToast: android.widget.Toast? = null
+
+    private fun penNotice(t: Tool) {
+        if (!preferences.penButtonToast) return
+        val name = appContext.getString(t.labelRes)
+        val text = if (t.isStroke) {
+            val w = controller.configFor(t).baseWidth
+            val ws = if (w % 1.0 == 0.0) w.toInt().toString() else String.format(java.util.Locale.getDefault(), "%.1f", w)
+            appContext.getString(R.string.pen_notice, name, ws)
+        } else name
+        penToast?.cancel()
+        penToast = android.widget.Toast.makeText(appContext, text, android.widget.Toast.LENGTH_SHORT).also { it.show() }
     }
 
     /** Arm [target], or if it is already armed, return to the previous tool (no-op if none yet). */

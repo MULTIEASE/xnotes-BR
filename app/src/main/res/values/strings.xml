@@ -1180,4 +1180,19 @@
     <string name="toolbar_size_compact">Compact</string>
     <string name="toolbar_size_regular">Regular</string>
     <string name="toolbar_size_comfortable">Comfortable</string>
+    <!-- xnotes BR -->
+    <string name="pen_buttons_title">Pen side buttons</string>
+    <string name="pen_buttons_help">Each button can do one thing while held and other things when clicked or double-clicked with the pen away from the screen.</string>
+    <string name="pen_button_1_lower">Button 1 (lower, near the tip)</string>
+    <string name="pen_button_2_upper">Button 2 (upper)</string>
+    <string name="pen_button_click">Click</string>
+    <string name="pen_button_double">Double click</string>
+    <string name="pen_button_toast">Show a notice when a pen button changes the pen</string>
+    <string name="pen_notice">%1$s · %2$s</string>
+    <string name="action_next_pen">Next pen type</string>
+    <string name="action_prev_pen">Previous pen type</string>
+    <string name="action_thicker">Thicker stroke</string>
+    <string name="action_thinner">Thinner stroke</string>
+    <string name="action_next_colour">Next colour</string>
+    <string name="action_prev_colour">Previous colour</string>
 </resources>

@@ -56,6 +56,7 @@ class StylusButtonLatch {
     fun onKey(keyCode: Int, down: Boolean): Boolean {
         if (!isStylusButtonKey(keyCode)) return false
         keyHeld = down
+        if (down) keySecondary = keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_SECONDARY || keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_TERTIARY
         return true
     }
 
@@ -71,9 +72,20 @@ class StylusButtonLatch {
     internal fun heldWith(buttonState: Int): Boolean =
         (buttonState and InteractionController.STYLUS_BUTTON_MASK) != 0 || held
 
+    /** xnotes BR: whether the button held for [e] is the pen's second (upper) button. */
+    fun secondaryFor(e: MotionEvent): Boolean =
+        (e.buttonState and SECONDARY_BITS) != 0 || (keyHeld && keySecondary && (e.buttonState and PRIMARY_BITS) == 0)
+
     companion object {
         /** One pen, so one key state for every latch: its key-up can reach another pane than its key-down. */
         private var keyHeld = false
+        private var keySecondary = false
+
+        /** Bits that mean the first (lower) side button. */
+        val PRIMARY_BITS = MotionEvent.BUTTON_STYLUS_PRIMARY or MotionEvent.BUTTON_SECONDARY
+
+        /** Bits that mean the second (upper) side button. */
+        val SECONDARY_BITS = MotionEvent.BUTTON_STYLUS_SECONDARY or MotionEvent.BUTTON_TERTIARY
 
         /** The same pen's button clicks, kept once for the same reason; see [ButtonClick]. */
         val clicks = ButtonClick { ViewConfiguration.getLongPressTimeout().toLong() }
@@ -152,5 +164,94 @@ class ButtonClick(private val timeoutMs: () -> Long) {
 
     private companion object {
         const val NONE = -1L
+    }
+}
+
+
+/**
+ * xnotes BR: tells clicks and double clicks of each of the pen's two side buttons apart, from
+ * whichever stream reports them (hover `buttonState`, `ACTION_BUTTON_PRESS/RELEASE`, or stylus
+ * keys). A press while the tip touches the screen, or one held past the long-press timeout, is a
+ * hold and never a click. [onGesture] receives the button (1 or 2) and whether it was a double click.
+ */
+class PenButtonGestures(
+    private val longPressMs: () -> Long,
+    private val wantsDouble: (Int) -> Boolean,
+    private val onGesture: (button: Int, double: Boolean) -> Unit,
+) {
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val down = BooleanArray(3)
+    private val downAt = LongArray(3)
+    private val touchedDuring = BooleanArray(3)
+    private val lastClickAt = LongArray(3)
+    private val pending = arrayOfNulls<Runnable>(3)
+    private var touching = false
+    private var lastMask = 0
+
+    fun press(button: Int, at: Long) {
+        if (down[button]) return
+        down[button] = true
+        downAt[button] = at
+        touchedDuring[button] = touching
+    }
+
+    fun release(button: Int, at: Long) {
+        if (!down[button]) return
+        down[button] = false
+        if (touchedDuring[button] || at - downAt[button] > longPressMs()) return
+        val last = lastClickAt[button]
+        if (last > 0 && at - last <= DOUBLE_MS && wantsDouble(button)) {
+            pending[button]?.let { handler.removeCallbacks(it) }
+            pending[button] = null
+            lastClickAt[button] = 0
+            onGesture(button, true)
+            return
+        }
+        lastClickAt[button] = at
+        if (wantsDouble(button)) {
+            val r = Runnable { pending[button] = null; onGesture(button, false) }
+            pending[button] = r
+            handler.postDelayed(r, DOUBLE_MS)
+        } else {
+            onGesture(button, false)
+        }
+    }
+
+    /** Follow a full button mask (hover or touch `buttonState`). */
+    fun onMask(mask: Int, at: Long) {
+        val b1 = (mask and StylusButtonLatch.PRIMARY_BITS) != 0
+        val b2 = (mask and StylusButtonLatch.SECONDARY_BITS) != 0
+        val was1 = (lastMask and StylusButtonLatch.PRIMARY_BITS) != 0
+        val was2 = (lastMask and StylusButtonLatch.SECONDARY_BITS) != 0
+        if (b1 && !was1) press(1, at)
+        if (!b1 && was1) release(1, at)
+        if (b2 && !was2) press(2, at)
+        if (!b2 && was2) release(2, at)
+        lastMask = mask
+    }
+
+    fun onMotion(e: MotionEvent) {
+        if (e.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) return
+        when (e.actionMasked) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+                touching = true
+                for (b in 1..2) if (down[b]) touchedDuring[b] = true
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_CANCEL -> touching = false
+        }
+        onMask(e.buttonState, e.eventTime)
+    }
+
+    fun onKey(keyCode: Int, isDown: Boolean, at: Long) {
+        val button = when (keyCode) {
+            KeyEvent.KEYCODE_STYLUS_BUTTON_PRIMARY -> 1
+            KeyEvent.KEYCODE_STYLUS_BUTTON_SECONDARY, KeyEvent.KEYCODE_STYLUS_BUTTON_TERTIARY -> 2
+            else -> return
+        }
+        if (isDown) press(button, at) else release(button, at)
+    }
+
+    companion object {
+        const val DOUBLE_MS = 350L
     }
 }

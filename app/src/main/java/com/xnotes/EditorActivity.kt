@@ -213,7 +213,26 @@ class EditorActivity : ComponentActivity() {
     // Stylus side-button keys (Bluetooth/USI pens report the button only this way) are caught here,
     // before Compose focus routing, so the controller sees both press and release regardless of
     // which view holds focus. Other keys fall through to the normal dispatch.
+    // xnotes BR: clicks and double clicks of the pen's two side buttons, from every stream.
+    private val penButtonGestures = com.xnotes.canvas.PenButtonGestures(
+        longPressMs = { android.view.ViewConfiguration.getLongPressTimeout().toLong() },
+        wantsDouble = { b -> editor?.active?.penButtonWantsDouble(b) == true },
+        onGesture = { b, double -> editor?.active?.onPenButtonGesture(b, double) },
+    )
+
+    override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
+        if (ev.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS) {
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_BUTTON_PRESS, MotionEvent.ACTION_BUTTON_RELEASE,
+                MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_HOVER_EXIT ->
+                    penButtonGestures.onMask(ev.buttonState, ev.eventTime)
+            }
+        }
+        return super.dispatchGenericMotionEvent(ev)
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.repeatCount == 0) penButtonGestures.onKey(event.keyCode, event.action == KeyEvent.ACTION_DOWN, event.eventTime)
         // The pen writes in whichever pane has the focus, so its button keys go to that pane too.
         if (editor?.active?.onStylusButtonKey(event) == true) return true
         if (editor?.active?.onVolumeKey(event) == true) return true
@@ -229,6 +248,7 @@ class EditorActivity : ComponentActivity() {
     // here, the last point they are intact, and dispatch normally. A no-op on every other device.
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         StylusButtonLatch.clicks.onTouch(ev) // a side-button press with the pen tip down is a hold, never a click
+        penButtonGestures.onMotion(ev)
         val standard = standardPenAction(ev.actionMasked)
         if (standard < 0 || ev.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
             return eyedropperTouch.dispatch(ev, superTouch)

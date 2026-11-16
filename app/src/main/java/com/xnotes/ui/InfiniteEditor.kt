@@ -2116,9 +2116,10 @@ class InfiniteEditor(context: Context) : ToolPopupHost, SelectionMenuHost, LongP
     }
 
     /** Adopt the app's pen preferences, so the canvas and the paged note behave the same. */
-    fun applyInputPrefs(fingerDraws: Boolean, penButtonTool: Tool?, zoomLockPan: String, detectShapes: Boolean) {
+    fun applyInputPrefs(fingerDraws: Boolean, penButtonTool: Tool?, zoomLockPan: String, detectShapes: Boolean, penButton2Tool: Tool? = penButtonTool) {
         interaction.fingerDraws = fingerDraws
         interaction.penButtonTool = penButtonTool
+        interaction.penButton2Tool = penButton2Tool
         interaction.zoomLockPan = zoomLockPan
         this.detectShapes = detectShapes
     }

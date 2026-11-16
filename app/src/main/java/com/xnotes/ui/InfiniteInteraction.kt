@@ -168,6 +168,9 @@ class InfiniteInteraction(
     /** Tool the stylus side button arms while it is held; null leaves the button alone. */
     var penButtonTool: Tool? = Tool.ERASER
 
+    /** xnotes BR: the tool the pen's second (upper) side button activates while held. */
+    var penButton2Tool: Tool? = Tool.ERASER
+
     /** Zoom lock: a pinch pans without changing the zoom, mirroring the paged canvas. */
     var zoomLocked: Boolean = false
 
@@ -502,6 +505,7 @@ class InfiniteInteraction(
         // the paged canvas so a pen behaves the same on either surface.
         val toolType = e.getToolType(0)
         val buttonHeld = stylusButtons.heldFor(e)
+        val heldTool = if (!buttonHeld) null else if (stylusButtons.secondaryFor(e)) penButton2Tool else penButtonTool
         val at = viewport.viewportToContent(Pt(vx, vy))
         val drawing = (tool.isStroke || tool == Tool.SHAPE || tool == Tool.TAPE) && toolType != MotionEvent.TOOL_TYPE_FINGER
         // Taken before a draft is finished below, since that selects its polygon.
@@ -519,7 +523,7 @@ class InfiniteInteraction(
         val onSelection = if (drawing) drawingGrabsSelection(at) else hitsSelection(at)
         val effective: Tool = when {
             toolType == MotionEvent.TOOL_TYPE_ERASER -> Tool.ERASER
-            buttonHeld && penButtonTool != null -> penButtonTool!!
+            heldTool != null -> heldTool
             // While something is selected, a press on it grabs it rather than inking through it,
             // and a finger may grab it even with finger-draw off. Both are the paged canvas's
             // rules; without them a selection could only be handled by a stylus.
@@ -557,7 +561,7 @@ class InfiniteInteraction(
             effective == Tool.SELECT -> beginSelect(vx, vy)
             effective == Tool.LASSO -> beginLasso(vx, vy)
             effective == Tool.TAPE -> beginTape(vx, vy)
-            else -> beginPan(vx, vy, fromPenButton = buttonHeld && penButtonTool == Tool.PAN)
+            else -> beginPan(vx, vy, fromPenButton = heldTool == Tool.PAN)
         }
     }
 

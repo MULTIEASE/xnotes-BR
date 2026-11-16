@@ -1160,4 +1160,19 @@
     <string name="toolbar_size_compact">Compacta</string>
     <string name="toolbar_size_regular">Normal</string>
     <string name="toolbar_size_comfortable">Confortável</string>
+    <!-- xnotes BR -->
+    <string name="pen_buttons_title">Botões laterais da caneta</string>
+    <string name="pen_buttons_help">Cada botão pode fazer uma coisa enquanto está apertado e outras com um clique ou clique duplo, com a caneta afastada da tela.</string>
+    <string name="pen_button_1_lower">Botão 1 (de baixo, perto da ponta)</string>
+    <string name="pen_button_2_upper">Botão 2 (de cima)</string>
+    <string name="pen_button_click">Clique</string>
+    <string name="pen_button_double">Clique duplo</string>
+    <string name="pen_button_toast">Mostrar um aviso quando um botão da caneta trocar a caneta</string>
+    <string name="pen_notice">%1$s · %2$s</string>
+    <string name="action_next_pen">Próximo tipo de caneta</string>
+    <string name="action_prev_pen">Tipo de caneta anterior</string>
+    <string name="action_thicker">Traço mais grosso</string>
+    <string name="action_thinner">Traço mais fino</string>
+    <string name="action_next_colour">Próxima cor</string>
+    <string name="action_prev_colour">Cor anterior</string>
 </resources>

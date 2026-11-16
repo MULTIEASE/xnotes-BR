@@ -105,6 +105,14 @@ private val tapGestureOptions = listOf(
     "toggle_eraser" to R.string.toggle_eraser,
     "toggle_lasso" to R.string.toggle_lasso,
     "toggle_previous" to R.string.toggle_previous,
+    "next_pen" to R.string.action_next_pen,
+    "prev_pen" to R.string.action_prev_pen,
+    "thicker" to R.string.action_thicker,
+    "thinner" to R.string.action_thinner,
+    "next_colour" to R.string.action_next_colour,
+    "prev_colour" to R.string.action_prev_colour,
+    "next_page" to R.string.next_page,
+    "prev_page" to R.string.previous_page,
 )
 
 /**
@@ -270,21 +278,49 @@ fun PreferencesPane(
                 Chip(stringResource(R.string.pan_none), prefs.zoomLockPan == "none") { update(prefs.copy(zoomLockPan = "none")) }
             }
             CheckRow(stringResource(R.string.pref_detect_shapes), prefs.detectShapes) { update(prefs.copy(detectShapes = it)) }
-            FieldLabel(stringResource(R.string.pref_pen_button_hold))
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                penButtonOptions.forEach { (id, label) ->
-                    Chip(stringResource(label), prefs.penButtonTool == id) { update(prefs.copy(penButtonTool = id)) }
+            val tapOptions = tapGestureOptions.map { (id, res) -> id to stringResource(res) }
+            // xnotes BR: each side button has its own hold tool, click and double click.
+            FieldLabel(stringResource(R.string.pen_buttons_title))
+            Text(stringResource(R.string.pen_buttons_help), color = palette.textDim.toComposeColor(), fontSize = 12.sp)
+            for (button in 1..2) {
+                Text(
+                    stringResource(if (button == 1) R.string.pen_button_1_lower else R.string.pen_button_2_upper),
+                    color = palette.text.toComposeColor(),
+                    fontSize = 14.sp,
+                )
+                Text(stringResource(R.string.pref_pen_button_hold), color = palette.textDim.toComposeColor(), fontSize = 12.sp)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    val current = if (button == 1) prefs.penButtonTool else prefs.penButton2Tool
+                    penButtonOptions.forEach { (id, label) ->
+                        Chip(stringResource(label), current == id) {
+                            update(if (button == 1) prefs.copy(penButtonTool = id) else prefs.copy(penButton2Tool = id))
+                        }
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(stringResource(R.string.pen_button_click), color = palette.textDim.toComposeColor(), fontSize = 12.sp)
+                        OptionDropdown(tapOptions, if (button == 1) prefs.penButton1Click else prefs.penButton2Click) {
+                            update(if (button == 1) prefs.copy(penButton1Click = it) else prefs.copy(penButton2Click = it))
+                        }
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(stringResource(R.string.pen_button_double), color = palette.textDim.toComposeColor(), fontSize = 12.sp)
+                        OptionDropdown(tapOptions, if (button == 1) prefs.penButton1Double else prefs.penButton2Double) {
+                            update(if (button == 1) prefs.copy(penButton1Double = it) else prefs.copy(penButton2Double = it))
+                        }
+                    }
                 }
             }
-            if (prefs.penButtonTool == "eraser" || prefs.penButtonTool == "pan") {
+            CheckRow(stringResource(R.string.pen_button_toast), prefs.penButtonToast) { update(prefs.copy(penButtonToast = it)) }
+            if (prefs.penButtonTool == "eraser" || prefs.penButtonTool == "pan" || prefs.penButton2Tool == "eraser" || prefs.penButton2Tool == "pan") {
                 CheckRow(stringResource(R.string.pref_pen_button_hover), prefs.penButtonHover) {
                     update(prefs.copy(penButtonHover = it))
                 }
             }
-            val tapOptions = tapGestureOptions.map { (id, res) -> id to stringResource(res) }
             FieldLabel(stringResource(R.string.pref_two_finger_tap))
             OptionDropdown(tapOptions, prefs.twoFingerTap) { update(prefs.copy(twoFingerTap = it)) }
             FieldLabel(stringResource(R.string.pref_three_finger_tap))

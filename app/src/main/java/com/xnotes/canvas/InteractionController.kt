@@ -241,6 +241,12 @@ class InteractionController(
     /** Tool the stylus side button activates while held, or null to ignore the button. */
     var penButtonTool: Tool? = Tool.ERASER
 
+    /** xnotes BR: the tool the pen's second (upper) side button activates while held. */
+    var penButton2Tool: Tool? = Tool.ERASER
+
+    /** xnotes BR: the held side button's tool for [e], button 2 when the upper button is down. */
+    private fun buttonToolFor(e: MotionEvent): Tool? = if (stylusButtons.secondaryFor(e)) penButton2Tool else penButtonTool
+
     /** The side button, latched as on the infinite canvas; read only at touch-down, so a press
      *  after the pen is already down does not activate the mapped tool. */
     private val stylusButtons = StylusButtonLatch()
@@ -721,21 +727,22 @@ class InteractionController(
     private fun handleHoverAction(e: MotionEvent): Boolean {
         val buttonNow = e.actionMasked != MotionEvent.ACTION_HOVER_EXIT && stylusButtons.heldFor(e)
         // A press that may still be a click waits, so a click never erases under the hovering pen.
+        val bt = buttonToolFor(e)
         val want = penButtonHover && buttonNow && !StylusButtonLatch.clicks.mayStillClick(e.eventTime) &&
-            (penButtonTool == Tool.ERASER || penButtonTool == Tool.PAN)
+            (bt == Tool.ERASER || bt == Tool.PAN)
         val vx = e.x.toDouble()
         val vy = e.y.toDouble()
         return when {
-            want && hoverActionTool == null -> { beginHoverAction(vx, vy); true }
+            want && hoverActionTool == null -> { beginHoverAction(vx, vy, bt); true }
             want && hoverActionTool != null -> { extendHoverAction(vx, vy); true }
             hoverActionTool != null -> { endHoverAction(); true }
             else -> false
         }
     }
 
-    private fun beginHoverAction(vx: Double, vy: Double) {
-        hoverActionTool = penButtonTool
-        when (penButtonTool) {
+    private fun beginHoverAction(vx: Double, vy: Double, bt: Tool?) {
+        hoverActionTool = bt
+        when (bt) {
             Tool.ERASER -> { clearSelection(); beginErase(vx, vy) }
             Tool.PAN -> beginPan(vx, vy, fromPenButton = true)
             else -> hoverActionTool = null
@@ -801,9 +808,10 @@ class InteractionController(
         //  - a finger pans unless finger-draw is enabled;
         //  - otherwise the armed tool.
         val buttonHeld = stylusButtons.heldFor(e)
+        val heldTool = if (buttonHeld) buttonToolFor(e) else null
         val effectiveTool: Tool = when {
             toolType == MotionEvent.TOOL_TYPE_ERASER -> Tool.ERASER
-            buttonHeld && penButtonTool != null -> penButtonTool!!
+            heldTool != null -> heldTool
             // While something is selected, the stylus grabs that selection (resize on a handle,
             // move on the body) instead of inking through it, matching the finger. Off the
             // selection a pen or tape draws and dismisses it (see beginDraw); the Shape tool only dismisses.
@@ -925,7 +933,7 @@ class InteractionController(
             finishPolygonDraft()
         }
         when {
-            effectiveTool == Tool.PAN -> beginPan(vx, vy, fromPenButton = buttonHeld && penButtonTool == Tool.PAN)
+            effectiveTool == Tool.PAN -> beginPan(vx, vy, fromPenButton = heldTool == Tool.PAN)
             effectiveTool.isStroke -> beginDraw(content, resolvePressure(e, 0, toolType), effectiveTool, e.eventTime, Pt(vx, vy))
             effectiveTool == Tool.ERASER -> {
                 clearSelection()

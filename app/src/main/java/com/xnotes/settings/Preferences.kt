@@ -42,6 +42,15 @@ data class Preferences(
     val detectShapes: Boolean = true,
     /** Tool the stylus side button activates while held; "none" disables it. */
     val penButtonTool: String = "eraser",
+    /** xnotes BR: tool the pen's second (upper) side button activates while held. */
+    val penButton2Tool: String = "eraser",
+    /** xnotes BR: actions for a click / double click of each side button. */
+    val penButton1Click: String = "next_pen",
+    val penButton1Double: String = "undo",
+    val penButton2Click: String = "thicker",
+    val penButton2Double: String = "thinner",
+    /** xnotes BR: show a short notice when a pen button changes the pen. */
+    val penButtonToast: Boolean = true,
     /** Whether the side-button tool also activates during hover (no contact needed); eraser/pan only. */
     val penButtonHover: Boolean = false,
     /** Action mapped to a clean two-finger tap; "none" (default) disables it. */
@@ -140,6 +149,12 @@ data class Preferences(
         .put("zoom_lock_pan", zoomLockPan)
         .put("detect_shapes", detectShapes)
         .put("pen_button_tool", penButtonTool)
+        .put("pen_button_2_tool", penButton2Tool)
+        .put("pen_button_1_click", penButton1Click)
+        .put("pen_button_1_double", penButton1Double)
+        .put("pen_button_2_click", penButton2Click)
+        .put("pen_button_2_double", penButton2Double)
+        .put("pen_button_toast", penButtonToast)
         .put("pen_button_hover", penButtonHover)
         .put("two_finger_tap", twoFingerTap)
         .put("three_finger_tap", threeFingerTap)
@@ -224,8 +239,11 @@ data class Preferences(
                 .let { if (it == "dark" || it == "light" || it == "oled") it else "system" }
             val template = o.optString("default_template", "color").let { if (it == "pdf") "pdf" else "color" }
             val zoomLockPan = o.optString("zoom_lock_pan", "single").let { if (it == "double" || it == "none") it else "single" }
-            val tapActions = setOf("none", "undo", "redo", "toggle_pan", "toggle_eraser", "toggle_lasso", "toggle_previous")
-            fun tapAction(key: String) = o.optString(key, "none").let { if (it in tapActions) it else "none" }
+            val tapActions = setOf(
+                "none", "undo", "redo", "toggle_pan", "toggle_eraser", "toggle_lasso", "toggle_previous",
+                "next_pen", "prev_pen", "thicker", "thinner", "next_colour", "prev_colour", "next_page", "prev_page",
+            )
+            fun tapAction(key: String, default: String = "none") = o.optString(key, default).let { if (it in tapActions) it else default }
             val legacySeed = Rgba.fromHex(o.optString("material_seed"))
             val legacyDual = o.optBoolean("material_dual_tone", false)
             val materialMode = MaterialColourMode.fromId(o.optString("material_mode")) ?: when {
@@ -274,6 +292,12 @@ data class Preferences(
                 zoomLockPan = zoomLockPan,
                 detectShapes = o.optBoolean("detect_shapes", true),
                 penButtonTool = o.optString("pen_button_tool", "eraser").ifEmpty { "eraser" },
+                penButton2Tool = o.optString("pen_button_2_tool", o.optString("pen_button_tool", "eraser")).ifEmpty { "eraser" },
+                penButton1Click = tapAction("pen_button_1_click", "next_pen"),
+                penButton1Double = tapAction("pen_button_1_double", "undo"),
+                penButton2Click = tapAction("pen_button_2_click", "thicker"),
+                penButton2Double = tapAction("pen_button_2_double", "thinner"),
+                penButtonToast = o.optBoolean("pen_button_toast", true),
                 penButtonHover = o.optBoolean("pen_button_hover", false),
                 twoFingerTap = tapAction("two_finger_tap"),
                 threeFingerTap = tapAction("three_finger_tap"),

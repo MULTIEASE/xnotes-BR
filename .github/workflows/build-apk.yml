@@ -3,7 +3,7 @@ name: Gerar APK do xnotes BR
 
 on:
   push:
-    branches: [master, main]
+    branches: [master, main, "dev/**"]
   workflow_dispatch:
 
 permissions:
@@ -78,6 +78,7 @@ jobs:
           path: saida/*.apk
 
       - name: Publicar em Releases (para baixar no tablet)
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: br-${{ github.run_number }}
