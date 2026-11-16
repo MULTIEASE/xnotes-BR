@@ -270,6 +270,7 @@ private fun ToolbarItemView(
         ) { editor.toggleZoomLock() }
 
         ToolbarItem.FULLSCREEN -> ToolbarIcon(XnotesIcons.fullscreen, stringResource(R.string.toolbar_fullscreen), shortcut = Keys.FULLSCREEN) { onToggleFullscreen() }
+        ToolbarItem.READING -> ToolbarIcon(XnotesIcons.reading, stringResource(R.string.action_toggle_reading)) { editor.toggleReadingMode() }
         ToolbarItem.NOTEBOOK -> ToolbarIcon(XnotesIcons.notebook, stringResource(R.string.action_toggle_notebook), active = editor.notebookBar) { editor.toggleNotebookBar() }
 
         ToolbarItem.COLORS -> editor.toolbarColors.take(editor.toolbarColorCount).forEachIndexed { i, color ->

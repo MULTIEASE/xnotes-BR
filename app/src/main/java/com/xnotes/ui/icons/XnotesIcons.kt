@@ -175,6 +175,9 @@ object XnotesIcons {
     val fullscreen = icon("M15 3h6v6", "M9 21H3v-6", "M21 3l-7 7", "M3 21l7-7")
 
     /** xnotes BR: a notebook page with a row of boxes at its foot (Modo Caderno). */
+    /** xnotes BR: an open book (Modo Leitura). */
+    val reading = icon("M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3Z", "M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7Z")
+
     val notebook = icon("M5 3h14v18H5Z", "M8 7h8", "M8 10.5h8", "M5 15h14", "M8 15v6", "M12 15v6", "M16 15v6")
     val plus = icon("M12 5v14", "M5 12h14")
     val minus = icon("M5 12h14")

@@ -56,7 +56,10 @@ enum class ToolbarItem(val id: String) {
     INSERT_SPACE("insert_space"),
 
     /** xnotes BR, notes only: shows or hides the Modo Caderno bar of tool boxes under the page. */
-    NOTEBOOK("notebook");
+    NOTEBOOK("notebook"),
+
+    /** xnotes BR, notes only: Modo Leitura, the Kindle-style reading view. */
+    READING("reading");
 
     companion object {
         fun fromId(id: String?): ToolbarItem? = entries.firstOrNull { it.id == id }
@@ -162,6 +165,7 @@ data class ToolbarLayout(val sections: List<ToolbarSection>) {
             ToolbarItem.TAPE to ToolbarItem.WAND,
             ToolbarItem.INSERT_SPACE to ToolbarItem.LASSO,
             ToolbarItem.NOTEBOOK to ToolbarItem.FULLSCREEN,
+            ToolbarItem.READING to ToolbarItem.NOTEBOOK,
             ToolbarItem.MARKUP to ToolbarItem.TEXT_BOX,
         )
 
@@ -201,7 +205,7 @@ data class ToolbarLayout(val sections: List<ToolbarSection>) {
             listOf(ToolbarItem.UNDO, ToolbarItem.REDO),
             listOf(ToolbarItem.PAGE_NAV, ToolbarItem.STYLES, ToolbarItem.MARGINS, ToolbarItem.VIEW),
             listOf(ToolbarItem.ZOOM, ToolbarItem.FIT, ToolbarItem.ZOOM_LOCK),
-            listOf(ToolbarItem.FULLSCREEN, ToolbarItem.NOTEBOOK),
+            listOf(ToolbarItem.FULLSCREEN, ToolbarItem.NOTEBOOK, ToolbarItem.READING),
         )
 
         /** Mirrors the hardcoded canvas bar (see InfiniteToolbar.kt). */

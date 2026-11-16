@@ -1194,4 +1194,7 @@
     <string name="action_dictate">Ditado (fala vira texto)</string>
     <string name="nb_dictate">Ditar</string>
     <string name="nb_dictate_stop">Parar</string>
+    <string name="action_toggle_reading">Modo Leitura</string>
+    <string name="reading_position">Pág. %1$d de %2$d · %3$d%%</string>
+    <string name="reading_exit">Sair da leitura</string>
 </resources>

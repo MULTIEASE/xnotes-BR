@@ -1538,7 +1538,7 @@ private fun EditorPane(
                 }
             } else {
                 val bar: @Composable () -> Unit = {
-                    Box(Modifier.endsPageSelection(editor)) { Toolbar(
+                    if (!editor.readingMode) Box(Modifier.endsPageSelection(editor)) { Toolbar(
                         editor,
                         onToggleFullscreen = actions.onToggleFullscreen,
                         onOpenBackstage = actions.onOpenBackstage,
@@ -1594,11 +1594,12 @@ private fun EditorPane(
                             com.xnotes.ui.FlowTableMenu(editor)
                             com.xnotes.ui.TableChrome(editor)
                             ZoomLockHint(editor)
+                            if (editor.readingMode) com.xnotes.ui.ReadingOverlay(editor)
                         }
                     }
                 }
                 // xnotes BR: Modo Caderno, the printed-style tool boxes under the page.
-                if (editor.notebookBar) {
+                if (editor.notebookBar && !editor.readingMode) {
                     com.xnotes.ui.NotebookBar(editor, onRecord = { actions.onRecordAudio(editor) })
                 }
                 // Last child of the resized column: rides directly above the soft keyboard.

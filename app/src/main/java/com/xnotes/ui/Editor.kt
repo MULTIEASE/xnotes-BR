@@ -6431,6 +6431,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         action == "prev_page" -> prevPage()
         action == "toggle_notebook" -> toggleNotebookBar()
         action == "dictate" -> toggleDictation()
+        action == "toggle_reading" -> toggleReadingMode()
         else -> Unit
     }
 
@@ -6477,6 +6478,26 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         val sentence = text.replaceFirstChar { it.titlecase(java.util.Locale.getDefault()) }
         val end = if (sentence.last() in ".!?") " " else ". "
         flowText.replaceExternal(flowText.selection, sentence + end)
+    }
+
+    // --- xnotes BR: Modo Leitura (estilo Kindle) ---
+
+    var readingMode by mutableStateOf(false)
+        private set
+    private var overridesBeforeReading: com.xnotes.canvas.ViewOverrides? = null
+
+    fun toggleReadingMode() {
+        if (!readingMode) {
+            overridesBeforeReading = viewOverrides
+            readingMode = true
+            fullscreen = true
+            updateViewOverrides(viewOverrides.copy(verticalScroll = false, sepia = 45))
+        } else {
+            readingMode = false
+            fullscreen = preferences.startFullscreen ?: true
+            updateViewOverrides(overridesBeforeReading ?: com.xnotes.canvas.ViewOverrides())
+            overridesBeforeReading = null
+        }
     }
 
     // --- xnotes BR: Modo Caderno ---
