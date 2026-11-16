@@ -325,7 +325,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     /** Whether the window runs in fullscreen. Persisted via [Preferences.startFullscreen]; when unset
      *  it defaults to on unless the display has a camera cutout. The activity observes this and drives
      *  the window. */
-    var fullscreen by mutableStateOf(settings.prefs.startFullscreen ?: !deviceHasDisplayCutout)
+    var fullscreen by mutableStateOf(settings.prefs.startFullscreen ?: true) // xnotes BR: tela inteira por padrão
         private set
 
     /** Prepares one of the shared temp dirs. The launch purge drops temps orphaned by a crash, which
@@ -2850,7 +2850,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         val marginChanged = p.sideMargin != settings.prefs.sideMargin
         settings = settings.copy(prefs = p)
         for (editor in listOfNotNull(this, sibling)) {
-            editor.fullscreen = p.startFullscreen ?: !editor.deviceHasDisplayCutout
+            editor.fullscreen = p.startFullscreen ?: true
             editor.applyPagePrefsToState(p)
             editor.republishFlow(invalidate = true)
             editor.state.invalidateAllCaches()

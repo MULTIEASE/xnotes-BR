@@ -10,9 +10,18 @@ plugins {
 // F-Droid builds without that file, producing an unsigned APK it verifies against
 // the published (signed) binary for reproducible builds.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
-val hasReleaseSigning = keystorePropertiesFile.exists()
+// xnotes BR: a chave vem do segredo do GitHub (o workflow grava em signing/xnotesbr.p12); a senha vem da variável XNOTESBR_PASSWORD.
+val brKeystoreFile = rootProject.file("signing/xnotesbr.p12")
+val hasReleaseSigning = keystorePropertiesFile.exists() || brKeystoreFile.exists()
 val keystoreProperties = Properties().apply {
-    if (hasReleaseSigning) keystorePropertiesFile.inputStream().use { load(it) }
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    } else if (brKeystoreFile.exists()) {
+        setProperty("storeFile", brKeystoreFile.absolutePath)
+        setProperty("storePassword", System.getenv("XNOTESBR_PASSWORD") ?: "")
+        setProperty("keyAlias", "xnotesbr")
+        setProperty("keyPassword", System.getenv("XNOTESBR_PASSWORD") ?: "")
+    }
 }
 
 android {
@@ -75,6 +84,8 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
+            // xnotes BR instala ao lado do xnotes original (outro applicationId).
+            applicationIdSuffix = ".br"
             if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
             // R8 shrinks/optimises release builds (see proguard-rules.pro for the few keeps). R8
             // output is reproducible (pinned AGP fixes the R8 version + mapping); the one
