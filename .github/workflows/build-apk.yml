@@ -40,18 +40,26 @@ jobs:
 
       - name: Restaurar a chave de assinatura (segredo do GitHub)
         env:
-          XNOTESBR_KEYSTORE: ${{ secrets.XNOTESBR_KEYSTORE }}
+          S_KEY: ${{ secrets.XNOTESBR_KEYSTORE }}
+          S_PW: ${{ secrets.XNOTESBR_PASSWORD }}
+          V_KEY: ${{ vars.XNOTESBR_KEYSTORE }}
+          V_PW: ${{ vars.XNOTESBR_PASSWORD }}
         run: |
-          if [ -z "$XNOTESBR_KEYSTORE" ]; then
-            echo "::error::Falta o segredo XNOTESBR_KEYSTORE. Cadastre em Settings > Secrets and variables > Actions."
+          echo "Diagnóstico (só mostra se existe, nunca o valor):"
+          for n in S_KEY S_PW V_KEY V_PW; do v="${!n}"; if [ -n "$v" ]; then echo "  $n: cadastrado (${#v} caracteres)"; else echo "  $n: vazio"; fi; done
+          KEY="${S_KEY:-$V_KEY}"; PW="${S_PW:-$V_PW}"
+          if [ -z "$S_KEY" ] && [ -n "$V_KEY" ]; then echo "::warning::A chave foi cadastrada em Variables (visível a todos). O certo é a aba Secrets."; fi
+          if [ -z "$KEY" ] || [ -z "$PW" ]; then
+            echo "::error::Segredos não encontrados. Cadastre XNOTESBR_KEYSTORE e XNOTESBR_PASSWORD em Settings > Secrets and variables > Actions > aba Secrets > New repository secret."
             exit 1
           fi
           mkdir -p signing
-          echo "$XNOTESBR_KEYSTORE" | base64 -d > signing/xnotesbr.p12
+          echo "$KEY" | tr -d ' \r\n' | base64 -d > signing/xnotesbr.p12
+          echo "::add-mask::$PW"
+          echo "XNOTESBR_PASSWORD=$PW" >> "$GITHUB_ENV"
+          ls -la signing
 
       - name: Compilar o APK
-        env:
-          XNOTESBR_PASSWORD: ${{ secrets.XNOTESBR_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon --stacktrace
