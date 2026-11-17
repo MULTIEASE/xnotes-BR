@@ -1199,4 +1199,11 @@
     <string name="reading_exit">Sair da leitura</string>
     <string name="caption_line_colour">Cor das linhas</string>
     <string name="caption_margin_colour">Cor da margem e dos títulos</string>
+    <string name="pen_screen_open">Configurar os botões da caneta…</string>
+    <string name="pen_screen_subtitle">Cada botão tem três gestos: clique, clique duplo e segurar. Os cliques valem com a caneta afastada da tela.</string>
+    <string name="pen_test_title">Testar os botões</string>
+    <string name="pen_test_help">Aperte um botão da caneta, afastada da tela, para ver se o app reconhece.</string>
+    <string name="pen_test_got">Botão %1$d: %2$s ✓</string>
+    <string name="pen_test_waiting">Botão %1$d: aguardando…</string>
+    <string name="pen_width_step">Variação de espessura por clique</string>
 </resources>

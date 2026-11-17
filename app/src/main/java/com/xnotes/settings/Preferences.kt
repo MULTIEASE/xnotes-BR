@@ -53,6 +53,8 @@ data class Preferences(
     val penButtonToast: Boolean = true,
     /** xnotes BR: show the Modo Caderno bar of tool boxes at the foot of the page. */
     val notebookBar: Boolean = false,
+    /** xnotes BR: how much a "thicker"/"thinner" pen click changes the width. */
+    val penWidthStep: Double = 0.5,
     /** Whether the side-button tool also activates during hover (no contact needed); eraser/pan only. */
     val penButtonHover: Boolean = false,
     /** Action mapped to a clean two-finger tap; "none" (default) disables it. */
@@ -158,6 +160,7 @@ data class Preferences(
         .put("pen_button_2_double", penButton2Double)
         .put("pen_button_toast", penButtonToast)
         .put("notebook_bar", notebookBar)
+        .put("pen_width_step", penWidthStep)
         .put("pen_button_hover", penButtonHover)
         .put("two_finger_tap", twoFingerTap)
         .put("three_finger_tap", threeFingerTap)
@@ -302,6 +305,7 @@ data class Preferences(
                 penButton2Double = tapAction("pen_button_2_double", "thinner"),
                 penButtonToast = o.optBoolean("pen_button_toast", true),
                 notebookBar = o.optBoolean("notebook_bar", false),
+                penWidthStep = o.optDouble("pen_width_step", 0.5).takeIf { it in 0.1..3.0 } ?: 0.5,
                 penButtonHover = o.optBoolean("pen_button_hover", false),
                 twoFingerTap = tapAction("two_finger_tap"),
                 threeFingerTap = tapAction("three_finger_tap"),

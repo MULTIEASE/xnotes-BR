@@ -1219,4 +1219,11 @@
     <string name="reading_exit">Exit reading</string>
     <string name="caption_line_colour">Line colour</string>
     <string name="caption_margin_colour">Margin and heading colour</string>
+    <string name="pen_screen_open">Set up the pen buttons…</string>
+    <string name="pen_screen_subtitle">Each button has three gestures: click, double click and hold. Clicks count with the pen away from the screen.</string>
+    <string name="pen_test_title">Test the buttons</string>
+    <string name="pen_test_help">Press a pen button, away from the screen, to see whether the app hears it.</string>
+    <string name="pen_test_got">Button %1$d: %2$s ✓</string>
+    <string name="pen_test_waiting">Button %1$d: waiting…</string>
+    <string name="pen_width_step">Width change per click</string>
 </resources>

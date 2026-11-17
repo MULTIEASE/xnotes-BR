@@ -6557,6 +6557,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
 
     /** A click (or double click, when [double]) of side button [button] (1 = lower, 2 = upper). */
     fun onPenButtonGesture(button: Int, double: Boolean) {
+        if (penTestMode) { penTestHeard = button to double; return }
         val p = preferences
         val action = when (button) {
             1 -> if (double) p.penButton1Double else p.penButton1Click
@@ -6564,6 +6565,10 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         }
         if (action != "none") dispatchTapGesture(action)
     }
+
+    /** While the Vision Pen screen is open: clicks are shown there, never run. */
+    var penTestMode = false
+    var penTestHeard by mutableStateOf<Pair<Int, Boolean>?>(null)
 
     /** Whether side button [button] has a double-click action, so a single click waits to be sure. */
     fun penButtonWantsDouble(button: Int): Boolean =
@@ -6583,7 +6588,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         val t = if (controller.tool.isStroke) controller.tool else Tool.PEN
         if (t != controller.tool) selectTool(t)
         val cfg = controller.configFor(t)
-        val delta = if (t == Tool.HIGHLIGHTER) 4.0 else com.xnotes.core.tools.ToolConversions.WIDTH_STEP
+        val delta = if (t == Tool.HIGHLIGHTER) preferences.penWidthStep * 4 else preferences.penWidthStep
         val w = com.xnotes.core.tools.ToolConversions.snapWidth(t, cfg.baseWidth + step * delta)
         updateToolConfig(t, cfg.copy(baseWidth = w))
         penNotice(t)
