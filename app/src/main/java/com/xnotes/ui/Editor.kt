@@ -6929,9 +6929,9 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     // --- xnotes BR: virar a folha como num caderno ---
 
     /** A page being turned: a picture of the page that was showing, and which way it turns. */
-    class PageTurn(val picture: androidx.compose.ui.graphics.ImageBitmap, val forward: Boolean, val id: Long)
+    class LeafTurn(val picture: androidx.compose.ui.graphics.ImageBitmap, val forward: Boolean, val id: Long)
 
-    var pageTurn by mutableStateOf<PageTurn?>(null)
+    var pageTurn by mutableStateOf<LeafTurn?>(null)
 
     /** Run [move] (which changes the page) under a notebook-style page turn when that is on. */
     private fun turnPage(forward: Boolean, move: () -> Unit) {
@@ -6945,7 +6945,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         } else null
         move()
         if (shot != null && state.currentPageIndex() != before) {
-            pageTurn = PageTurn(shot.asImageBitmap(), forward, System.nanoTime())
+            pageTurn = LeafTurn(shot.asImageBitmap(), forward, System.nanoTime())
         } else shot?.recycle()
     }
 
