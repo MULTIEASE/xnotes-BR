@@ -1595,6 +1595,7 @@ private fun EditorPane(
                             com.xnotes.ui.TableChrome(editor)
                             ZoomLockHint(editor)
                             if (editor.readingMode) com.xnotes.ui.ReadingOverlay(editor)
+                            com.xnotes.ui.PageTurnOverlay(editor)
                         }
                     }
                 }

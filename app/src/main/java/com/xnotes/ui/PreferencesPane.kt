@@ -310,6 +310,7 @@ fun PreferencesPane(
                 }
             }
             CheckRow(stringResource(R.string.pref_volume_keys_turn_pages), prefs.volumeKeysTurnPages) { update(prefs.copy(volumeKeysTurnPages = it)) }
+            CheckRow(stringResource(R.string.pref_page_curl), prefs.pageCurl) { update(prefs.copy(pageCurl = it)) }
 
             HorizontalDivider(color = palette.border.toComposeColor())
             SectionTitle(stringResource(R.string.pref_new_notes))

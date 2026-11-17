@@ -1227,4 +1227,6 @@
     <string name="pen_test_waiting">Button %1$d: waiting…</string>
     <string name="pen_width_step">Width change per click</string>
     <string name="pref_auto_shapes">Perfect shapes: a closed triangle, square or circle straightens when the pen lifts</string>
+    <string name="nb_paste_image">Paste image</string>
+    <string name="pref_page_curl">Turn pages like a notebook leaf (animation)</string>
 </resources>

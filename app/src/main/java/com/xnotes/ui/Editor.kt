@@ -6539,7 +6539,12 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     var notebookBar by mutableStateOf(preferences.notebookBar)
         private set
 
-    fun toggleNotebookBar() = applyPreferences(preferences.copy(notebookBar = !preferences.notebookBar))
+    fun toggleNotebookBar() {
+        val on = !preferences.notebookBar
+        applyPreferences(preferences.copy(notebookBar = on))
+        // A notebook turns its leaves: page by page, side to side, instead of one long scroll.
+        if (on && state.verticalScroll && noteOpen && !canvasOpen) updateViewOverrides(viewOverrides.copy(verticalScroll = false))
+    }
 
     fun notebookPen(width: Double) {
         selectTool(Tool.PEN)
@@ -6917,8 +6922,34 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     fun fitWidth() { state.fitWidth(); afterView() }
     fun fitHeight() { state.fitHeight(); afterView() }
     fun fitPage() { state.fitPage(); afterView() }
-    fun prevPage() { state.goToPage(state.prevPageIndex(state.currentPageIndex())); afterView() }
-    fun nextPage() { state.goToPage(state.nextPageIndex(state.currentPageIndex())); afterView() }
+    fun prevPage() = turnPage(forward = false) { state.goToPage(state.prevPageIndex(state.currentPageIndex())); afterView() }
+    fun nextPage() = turnPage(forward = true) { state.goToPage(state.nextPageIndex(state.currentPageIndex())); afterView() }
+
+    // --- xnotes BR: virar a folha como num caderno ---
+
+    /** A page being turned: a picture of the page that was showing, and which way it turns. */
+    class PageTurn(val picture: androidx.compose.ui.graphics.ImageBitmap, val forward: Boolean, val id: Long)
+
+    var pageTurn by mutableStateOf<PageTurn?>(null)
+
+    /** Run [move] (which changes the page) under a notebook-style page turn when that is on. */
+    private fun turnPage(forward: Boolean, move: () -> Unit) {
+        val before = state.currentPageIndex()
+        val shot = if (preferences.pageCurl && view.width > 0 && view.height > 0) {
+            runCatching {
+                val bmp = android.graphics.Bitmap.createBitmap(view.width, view.height, android.graphics.Bitmap.Config.ARGB_8888)
+                view.draw(android.graphics.Canvas(bmp))
+                bmp
+            }.getOrNull()
+        } else null
+        move()
+        if (shot != null && state.currentPageIndex() != before) {
+            pageTurn = PageTurn(shot.asImageBitmap(), forward, System.nanoTime())
+        } else shot?.recycle()
+    }
+
+    /** New page after this one, turned to like a notebook leaf. */
+    fun addPageAndTurn() = turnPage(forward = true) { addPage() }
     fun goToPage(index: Int) { state.goToPage(index); afterView() }
 
     fun toggleZoomLock() {

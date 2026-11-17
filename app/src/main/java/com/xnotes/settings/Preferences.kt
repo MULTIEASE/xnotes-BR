@@ -55,6 +55,8 @@ data class Preferences(
     val notebookBar: Boolean = false,
     /** xnotes BR: a closed drawn shape (triangle, square, circle...) turns perfect as the pen lifts. */
     val autoShapes: Boolean = true,
+    /** xnotes BR: page buttons, edge taps and volume keys turn the page like a notebook leaf. */
+    val pageCurl: Boolean = true,
     /** xnotes BR: how much a "thicker"/"thinner" pen click changes the width. */
     val penWidthStep: Double = 0.5,
     /** Whether the side-button tool also activates during hover (no contact needed); eraser/pan only. */
@@ -163,6 +165,7 @@ data class Preferences(
         .put("pen_button_toast", penButtonToast)
         .put("notebook_bar", notebookBar)
         .put("auto_shapes", autoShapes)
+        .put("page_curl", pageCurl)
         .put("pen_width_step", penWidthStep)
         .put("pen_button_hover", penButtonHover)
         .put("two_finger_tap", twoFingerTap)
@@ -309,6 +312,7 @@ data class Preferences(
                 penButtonToast = o.optBoolean("pen_button_toast", true),
                 notebookBar = o.optBoolean("notebook_bar", false),
                 autoShapes = o.optBoolean("auto_shapes", true),
+                pageCurl = o.optBoolean("page_curl", true),
                 penWidthStep = o.optDouble("pen_width_step", 0.5).takeIf { it in 0.1..3.0 } ?: 0.5,
                 penButtonHover = o.optBoolean("pen_button_hover", false),
                 twoFingerTap = tapAction("two_finger_tap"),

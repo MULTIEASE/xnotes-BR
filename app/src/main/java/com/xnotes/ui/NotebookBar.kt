@@ -157,8 +157,9 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
                 editor.dictating || editor.dictationArmed, ink, line, accent,
                 dot = if (editor.dictating) Color(0xFFD93025) else null,
             ) { editor.toggleDictation() }
+            SimpleBox(stringResource(R.string.nb_paste_image), false, ink, line, accent) { editor.pasteImage() }
             SimpleBox(stringResource(R.string.undo), false, ink, line, accent) { editor.undo() }
-            SimpleBox(stringResource(R.string.nb_new_page), false, ink, line, accent) { editor.addPage() }
+            SimpleBox(stringResource(R.string.nb_new_page), false, ink, line, accent) { editor.addPageAndTurn() }
         }
     }
 }
