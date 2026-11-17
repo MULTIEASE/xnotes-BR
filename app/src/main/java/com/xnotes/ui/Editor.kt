@@ -6492,7 +6492,8 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         }
         // Arm: switch to the text box tool, in handwriting, and start once the user taps a spot.
         dictationArmed = true
-        controller.textFace = com.xnotes.core.pal.FontFace.HAND
+        controller.clearSelection()
+        controller.setTextFace(com.xnotes.core.pal.FontFace.HAND)
         selectTool(Tool.TEXT_BOX)
         message = appContext.getString(R.string.dictation_need_caret)
     }
