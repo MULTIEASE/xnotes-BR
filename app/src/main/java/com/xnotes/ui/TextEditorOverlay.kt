@@ -96,6 +96,9 @@ interface TextEditHost {
 
     /** End the edit with the model's text, or [text] when given. */
     fun commitText(text: String? = null)
+
+    /** xnotes BR: the latest dictated sentence for the open box (a counter and the text), or null. */
+    val dictationPiece: Pair<Int, String>? get() = null
 }
 
 /**
@@ -121,6 +124,19 @@ fun TextEditorOverlay(editor: TextEditHost, field: EditingField) {
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    // xnotes BR: dictation types into the open box at the caret.
+    val piece = editor.dictationPiece
+    LaunchedEffect(piece) {
+        val p = piece ?: return@LaunchedEffect
+        val at = value.selection.end.coerceIn(0, value.text.length)
+        val before = value.text.substring(0, at)
+        val sep = if (before.isEmpty() || before.endsWith(" ") || before.endsWith("\n")) "" else " "
+        val text = before + sep + p.second + value.text.substring(at)
+        val caret = at + sep.length + p.second.length
+        value = TextFieldValue(text, TextRange(caret))
+        editor.updateEditingText(text)
+    }
 
     // Content-space geometry: the field lays its text out on the box's own pixel grid (the
     // baked painter wraps a StaticLayout at floor(width) px with a content-size font, then

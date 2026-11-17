@@ -975,8 +975,16 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
                 tableMenu = null
             }
         },
-        onTextEditStart = { field -> editingField = field; refreshTextBar() },
-        onTextEditEnd = { editingField = null; refreshTextBar() },
+        onTextEditStart = { field ->
+            editingField = field
+            refreshTextBar()
+            if (dictationArmed) startDictationNow()
+        },
+        onTextEditEnd = {
+            editingField = null
+            refreshTextBar()
+            if (dictating && !flowText.active) dictation.stop()
+        },
         onSelectionMenu = { rect -> selectionMenu = rect },
         onScreenshotMenu = { rect -> screenshotMenu = rect },
         onContextMenu = { vp, content, locked -> contextMenu = ContextMenuTarget(vp.x, vp.y, content, locked) },
@@ -6457,27 +6465,51 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         )
     }
 
+    /** Dictate pressed with no box open yet: the next text box the user opens starts listening. */
+    var dictationArmed by mutableStateOf(false)
+        private set
+
+    override var dictationPiece by mutableStateOf<Pair<Int, String>?>(null)
+        private set
+    private var dictationSeq = 0
+
     fun toggleDictation() {
-        if (dictation.listening) { dictation.stop(); return }
+        if (dictation.listening || dictationArmed) {
+            dictationArmed = false
+            if (dictation.listening) dictation.stop()
+            return
+        }
         val mic = androidx.core.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.RECORD_AUDIO) ==
             android.content.pm.PackageManager.PERMISSION_GRANTED
         if (!mic) {
             (viewContext as? android.app.Activity)?.requestPermissions(arrayOf(android.Manifest.permission.RECORD_AUDIO), 4711)
             return
         }
-        if (!flowText.active) {
-            message = appContext.getString(R.string.dictation_need_caret)
+        if (editingField != null || flowText.active) {
+            startDictationNow()
             return
         }
+        // Arm: switch to the text box tool, in handwriting, and start once the user taps a spot.
+        dictationArmed = true
+        controller.textFace = com.xnotes.core.pal.FontFace.HAND
+        selectTool(Tool.TEXT_BOX)
+        message = appContext.getString(R.string.dictation_need_caret)
+    }
+
+    private fun startDictationNow() {
+        dictationArmed = false
         message = appContext.getString(R.string.dictation_listening)
         dictation.start()
     }
 
     private fun insertDictated(text: String) {
-        if (!flowText.active) { dictation.stop(); return }
         val sentence = text.replaceFirstChar { it.titlecase(java.util.Locale.getDefault()) }
-        val end = if (sentence.last() in ".!?") " " else ". "
-        flowText.replaceExternal(flowText.selection, sentence + end)
+        val end = if (sentence.last() in ".!?") "" else "."
+        when {
+            editingField != null -> dictationPiece = (++dictationSeq) to (sentence + end)
+            flowText.active -> flowText.replaceExternal(flowText.selection, "$sentence$end ")
+            else -> dictation.stop()
+        }
     }
 
     // --- xnotes BR: Modo Leitura (estilo Kindle) ---
@@ -6515,6 +6547,11 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     }
 
     fun notebookTool(t: Tool) = selectTool(t)
+
+    fun notebookHighlighter(c: com.xnotes.core.model.Rgba) {
+        selectTool(Tool.HIGHLIGHTER)
+        updateToolConfig(Tool.HIGHLIGHTER, controller.configFor(Tool.HIGHLIGHTER).copy(colorOverride = c))
+    }
 
     // --- xnotes BR: pen side-button gestures and the actions they run ---
 

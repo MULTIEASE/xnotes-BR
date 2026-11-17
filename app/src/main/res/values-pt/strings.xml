@@ -1189,7 +1189,7 @@
     <string name="remove_image_keep_drawing">Apagar imagem e manter o desenho</string>
     <string name="dictation_unavailable">Este aparelho não tem reconhecimento de voz para o ditado.</string>
     <string name="dictation_error">O ditado parou. Tente de novo.</string>
-    <string name="dictation_need_caret">Escolha a ferramenta Texto e toque onde o ditado deve entrar, depois aperte Ditar.</string>
+    <string name="dictation_need_caret">Toque na página onde o texto deve começar. O ditado começa na hora.</string>
     <string name="dictation_listening">Ouvindo… fale e o texto aparece na página.</string>
     <string name="action_dictate">Ditado (fala vira texto)</string>
     <string name="nb_dictate">Ditar</string>

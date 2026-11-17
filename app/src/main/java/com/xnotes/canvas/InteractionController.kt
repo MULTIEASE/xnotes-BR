@@ -3485,7 +3485,6 @@ class InteractionController(
         // Long press (grab an item, select PDF text, or the paste menu on empty space) is a finger
         // gesture. A stylus or mouse only has it when free, under the PAN tool, where it mirrors the
         // finger; otherwise it draws, so resting it never grabs or pops a menu.
-        if (!isFinger && !free) return
         val grabEligible = tool.isStroke || tool == Tool.PAN || tool == Tool.SELECT ||
             tool == Tool.LASSO || tool == Tool.SHAPE || tool == Tool.TEXT || tool == Tool.TEXT_BOX || tool == Tool.TAPE
         val pageIndex = state.pageIndexAtContent(content)
@@ -3495,6 +3494,10 @@ class InteractionController(
         } else {
             null
         }
+        // xnotes BR: the pen held still on a recording or a text box picks it up too, so it can be
+        // moved, resized or deleted without reaching for a finger. On ink it keeps drawing.
+        val penGrabs = !isFinger && (hit is AudioItem || hit is TextItem) && hit?.locked == false
+        if (!isFinger && !free && !penGrabs) return
         longPressStart = viewport
         longPressContent = content
         // A locked item cannot be picked up, so a held finger offers to release it instead. That is
