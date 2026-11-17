@@ -1,0 +1,47 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.tracejado",
+ "name": "Linhas tracejadas",
+ "description": "Linhas em traços curtos, mais discretas que o pautado.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "4mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "16mm",
+   "w": "100% - 24mm",
+   "h": "100% - 24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%",
+       "dash": [
+        "2mm",
+        "1.5mm"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

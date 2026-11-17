@@ -1,16 +1,34 @@
 {
-  "xtemplate": 1,
-  "id": "com.xnotes.dots",
-  "name": "Dots",
-  "license": "MIT",
-  "tags": ["dots"],
-  "params": {
-    "spacing": { "type": "length", "default": "10.837333mm", "min": "2.709333mm", "max": "33.866667mm",
-                 "label": "Spacing", "role": "spacing" }
-  },
-  "items": [
-    { "type": "repeat", "axis": "xy", "period": "spacing", "extend": true, "children": [
-      { "type": "dot", "r": "0.338667mm" }
-    ]}
-  ]
+ "xtemplate": 1,
+ "id": "com.xnotes.dots",
+ "name": "Pontilhado",
+ "license": "MIT",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "10.837333mm",
+   "min": "2.709333mm",
+   "max": "33.866667mm",
+   "label": "Espaço entre pontos",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "repeat",
+   "axis": "xy",
+   "period": "spacing",
+   "extend": true,
+   "children": [
+    {
+     "type": "dot",
+     "r": "0.338667mm"
+    }
+   ]
+  }
+ ],
+ "description": "Pontos em grade, para escrever ou desenhar."
 }

@@ -1,0 +1,56 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.cruzes",
+ "name": "Grade de cruzinhas",
+ "description": "Pequenas cruzes em grade: guia o traço sem poluir a página.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades",
+  "desenho"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "6mm",
+   "min": "4mm",
+   "max": "12mm",
+   "label": "Espaço da grade",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "10mm",
+   "y": "10mm",
+   "w": "100% - 20mm",
+   "h": "100% - 20mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "xy",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "line",
+       "x1": "50% - 0.8mm",
+       "y1": "50%",
+       "x2": "50% + 0.8mm",
+       "y2": "50%",
+       "strokeWidth": "0.25mm"
+      },
+      {
+       "type": "line",
+       "x1": "50%",
+       "y1": "50% - 0.8mm",
+       "x2": "50%",
+       "y2": "50% + 0.8mm",
+       "strokeWidth": "0.25mm"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

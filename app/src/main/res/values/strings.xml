@@ -1217,4 +1217,6 @@
     <string name="action_toggle_reading">Reading mode</string>
     <string name="reading_position">Page %1$d of %2$d · %3$d%%</string>
     <string name="reading_exit">Exit reading</string>
+    <string name="caption_line_colour">Line colour</string>
+    <string name="caption_margin_colour">Margin and heading colour</string>
 </resources>

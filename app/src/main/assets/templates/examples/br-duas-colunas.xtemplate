@@ -1,0 +1,72 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.duas-colunas",
+ "name": "Pautado em duas colunas",
+ "description": "Duas colunas de linhas separadas por um vinco, para comparar ou resumir.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades",
+  "estudos"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "4mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "16mm",
+   "w": "50% - 16mm",
+   "h": "100% - 24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "x": "50% + 4mm",
+   "y": "16mm",
+   "w": "50% - 16mm",
+   "h": "100% - 24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "vline",
+   "x": "50%",
+   "y1": "16mm",
+   "y2": "100% - 8mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  }
+ ]
+}

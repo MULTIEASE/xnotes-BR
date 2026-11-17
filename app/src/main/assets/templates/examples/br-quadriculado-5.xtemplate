@@ -1,0 +1,61 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.quadriculado-5",
+ "name": "Quadriculado 5 mm com margem",
+ "description": "Quadradinhos de 5 mm, com margem e cabeçalho, bom para matemática e contas.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "5mm",
+   "min": "3mm",
+   "max": "10mm",
+   "label": "Tamanho do quadrado",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "10mm",
+   "y": "20mm",
+   "w": "100% - 20mm",
+   "h": "100% - 28mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "x",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "vline",
+       "x": 0,
+       "opacity": 0.55
+      }
+     ]
+    },
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": 0,
+       "opacity": 0.55
+      }
+     ]
+    },
+    {
+     "type": "rect",
+     "stroke": "accent",
+     "strokeWidth": "0.35mm"
+    }
+   ]
+  }
+ ]
+}

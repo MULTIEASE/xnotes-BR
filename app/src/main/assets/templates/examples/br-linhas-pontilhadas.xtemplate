@@ -1,0 +1,48 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.linhas-pontilhadas",
+ "name": "Linhas pontilhadas",
+ "description": "Linhas feitas de pontinhos, quase invisíveis na hora de ler.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "4mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "16mm",
+   "w": "100% - 24mm",
+   "h": "100% - 24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%",
+       "dash": [
+        "0.3mm",
+        "1.6mm"
+       ],
+       "strokeWidth": "0.45mm"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

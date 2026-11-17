@@ -1,20 +1,47 @@
 {
-  "xtemplate": 1,
-  "id": "com.xnotes.grid",
-  "name": "Grid",
-  "license": "MIT",
-  "tags": ["grid"],
-  "params": {
-    "spacing": { "type": "length", "default": "10.837333mm", "min": "2.709333mm", "max": "33.866667mm",
-                 "label": "Spacing", "role": "spacing" }
+ "xtemplate": 1,
+ "id": "com.xnotes.grid",
+ "name": "Quadriculado",
+ "license": "MIT",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "10.837333mm",
+   "min": "2.709333mm",
+   "max": "33.866667mm",
+   "label": "Tamanho do quadrado",
+   "role": "spacing"
+  }
+ },
+ "strokeWidth": "0.254mm",
+ "items": [
+  {
+   "type": "repeat",
+   "axis": "y",
+   "period": "spacing",
+   "extend": true,
+   "children": [
+    {
+     "type": "hline",
+     "y": 0
+    }
+   ]
   },
-  "strokeWidth": "0.254mm",
-  "items": [
-    { "type": "repeat", "axis": "y", "period": "spacing", "extend": true, "children": [
-      { "type": "hline", "y": 0 }
-    ]},
-    { "type": "repeat", "axis": "x", "period": "spacing", "extend": true, "children": [
-      { "type": "vline", "x": 0 }
-    ]}
-  ]
+  {
+   "type": "repeat",
+   "axis": "x",
+   "period": "spacing",
+   "extend": true,
+   "children": [
+    {
+     "type": "vline",
+     "x": 0
+    }
+   ]
+  }
+ ],
+ "description": "Quadrados em grade."
 }

@@ -1,21 +1,59 @@
 {
-  "xtemplate": 1,
-  "id": "xtemplate.examples.ruled",
-  "name": "Ruled with margin",
-  "description": "Horizontal lines below a header, with a margin line on the left.",
-  "license": "MIT",
-  "tags": ["lines", "writing"],
-  "params": {
-    "spacing": { "type": "length", "default": "8mm", "min": "5mm", "max": "12mm", "label": "Line spacing", "role": "spacing" },
-    "header": { "type": "length", "default": "24mm", "min": "0mm", "max": "60mm", "label": "Header height" },
-    "margin": { "type": "length", "default": "28mm", "min": "0mm", "max": "60mm", "label": "Margin width" }
+ "xtemplate": 1,
+ "id": "xtemplate.examples.ruled",
+ "name": "Pautado com margem",
+ "description": "Linhas horizontais abaixo de um cabeçalho, com linha de margem à esquerda.",
+ "license": "MIT",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "5mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
   },
-  "items": [
-    { "type": "group", "y": "header", "h": "100% - header", "children": [
-      { "type": "repeat", "axis": "y", "period": "spacing", "children": [
-        { "type": "hline", "y": 0 }
-      ]}
-    ]},
-    { "type": "vline", "x": "margin", "stroke": "accent" }
-  ]
+  "header": {
+   "type": "length",
+   "default": "24mm",
+   "min": "0mm",
+   "max": "60mm",
+   "label": "Altura do cabeçalho"
+  },
+  "margin": {
+   "type": "length",
+   "default": "28mm",
+   "min": "0mm",
+   "max": "60mm",
+   "label": "Largura da margem"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "y": "header",
+   "h": "100% - header",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "vline",
+   "x": "margin",
+   "stroke": "accent"
+  }
+ ]
 }

@@ -1,0 +1,63 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.pauta-lateral-numerada",
+ "name": "Pautado com linhas numeradas",
+ "description": "Linhas numeradas na margem, para citar trechos e referências.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "escrita",
+  "estudos"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "4mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": 0,
+   "y": "16mm",
+   "w": "100%",
+   "h": "100% - 24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%",
+       "x1": "20mm"
+      },
+      {
+       "type": "text",
+       "text": "{i + 1}",
+       "x": "16mm",
+       "y": "100% - 1.5mm",
+       "size": "2.4mm",
+       "fill": "ink",
+       "align": "end",
+       "opacity": 0.6
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "vline",
+   "x": "20mm",
+   "y1": 0,
+   "y2": "100%",
+   "stroke": "accent",
+   "strokeWidth": "0.3mm"
+  }
+ ]
+}

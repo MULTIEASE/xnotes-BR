@@ -1,0 +1,52 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.margem-anotacoes",
+ "name": "Pautado com coluna de anotações",
+ "description": "Linhas com uma coluna larga à direita para observações, julgados ou palavras-chave.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades",
+  "estudos"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "8mm",
+   "min": "4mm",
+   "max": "12mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "16mm",
+   "w": "100% - 24mm",
+   "h": "100% - 24mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "vline",
+   "x": "70%",
+   "y1": "10mm",
+   "y2": "100% - 8mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  }
+ ]
+}

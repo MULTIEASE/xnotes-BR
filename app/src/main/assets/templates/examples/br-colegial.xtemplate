@@ -1,0 +1,51 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.colegial",
+ "name": "Pautado colegial (estreito)",
+ "description": "Linhas mais juntas, a cada 6 mm, com margem.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "6mm",
+   "min": "4mm",
+   "max": "9mm",
+   "label": "Espaço entre linhas",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": 0,
+   "y": "14mm",
+   "w": "100%",
+   "h": "100% - 20mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "100%"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "vline",
+   "x": "20mm",
+   "y1": 0,
+   "y2": "100%",
+   "stroke": "accent",
+   "strokeWidth": "0.3mm"
+  }
+ ]
+}

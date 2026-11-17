@@ -443,8 +443,8 @@
     <string name="change_cover">Trocar capa…</string>
     <string name="change_cover_title">Trocar capa</string>
     <string name="remove_cover">Remover capa</string>
-    <string name="templates_built_in">Do app</string>
-    <string name="templates_examples">Exemplos</string>
+    <string name="templates_built_in">Básicos</string>
+    <string name="templates_examples">Modelos prontos</string>
     <string name="templates_imported">Importados</string>
     <string name="templates_imported_help">Ficam na sua pasta de notas, então sincronizam junto com as notas.</string>
     <string name="cover_designs">Desenhos</string>
@@ -1197,4 +1197,6 @@
     <string name="action_toggle_reading">Modo Leitura</string>
     <string name="reading_position">Pág. %1$d de %2$d · %3$d%%</string>
     <string name="reading_exit">Sair da leitura</string>
+    <string name="caption_line_colour">Cor das linhas</string>
+    <string name="caption_margin_colour">Cor da margem e dos títulos</string>
 </resources>

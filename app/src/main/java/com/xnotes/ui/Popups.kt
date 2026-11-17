@@ -305,6 +305,27 @@ fun StylesPopup(editor: Editor, onImportTemplate: () -> Unit = {}, onDismiss: ()
                 ModeChip(stringResource(R.string.default_choice), style.pageColor == null) { apply(style.copy(pageColor = null)) }
                 SwatchCircles(editor, SwatchRole.PAPER, style.pageColor) { apply(style.copy(pageColor = it)) }
             }
+            // xnotes BR: the line and margin colours right under the paper's, not only in Customize.
+            if (shown?.usesInk == true) {
+                Spacer(Modifier.size(10.dp))
+                StyleCaption(stringResource(R.string.caption_line_colour))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    ModeChip(stringResource(R.string.default_choice), style.patternColor == null) { apply(style.copy(patternColor = null)) }
+                    SwatchCircles(editor, SwatchRole.LINES, style.patternColor?.copy(a = 255)) {
+                        apply(style.copy(patternColor = it.copy(a = look.ink.a)))
+                    }
+                }
+            }
+            if (shown?.usesAccent == true) {
+                Spacer(Modifier.size(10.dp))
+                StyleCaption(stringResource(R.string.caption_margin_colour))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    ModeChip(stringResource(R.string.default_choice), style.accentColor == null) { apply(style.copy(accentColor = null)) }
+                    SwatchCircles(editor, SwatchRole.ACCENT, style.accentColor?.copy(a = 255)) {
+                        apply(style.copy(accentColor = it.copy(a = look.accent.a)))
+                    }
+                }
+            }
 
             Spacer(Modifier.size(12.dp))
             StyleCaption(stringResource(R.string.caption_template))

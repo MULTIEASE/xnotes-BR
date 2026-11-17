@@ -1,0 +1,48 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.linha-dupla",
+ "name": "Pauta dupla (letra cursiva)",
+ "description": "Pares de linhas para treinar a altura das letras minúsculas.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "escrita"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "12mm",
+   "min": "8mm",
+   "max": "20mm",
+   "label": "Altura da linha",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "group",
+   "x": "12mm",
+   "y": "18mm",
+   "w": "100% - 24mm",
+   "h": "100% - 26mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "y",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "hline",
+       "y": "35%",
+       "opacity": 0.55
+      },
+      {
+       "type": "hline",
+       "y": "75%"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

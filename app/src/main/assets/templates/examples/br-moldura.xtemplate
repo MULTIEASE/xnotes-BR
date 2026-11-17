@@ -1,0 +1,33 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.moldura",
+ "name": "Folha lisa com moldura",
+ "description": "Página em branco com moldura fina e espaço para título.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "linhas e grades",
+  "desenho"
+ ],
+ "items": [
+  {
+   "type": "rect",
+   "x": "10mm",
+   "y": "10mm",
+   "w": "100% - 20mm",
+   "h": "100% - 20mm",
+   "rx": "2mm",
+   "stroke": "accent",
+   "strokeWidth": "0.4mm"
+  },
+  {
+   "type": "hline",
+   "y": "24mm",
+   "x1": "10mm",
+   "x2": "100% - 10mm",
+   "stroke": "accent",
+   "strokeWidth": "0.3mm",
+   "opacity": 0.7
+  }
+ ]
+}

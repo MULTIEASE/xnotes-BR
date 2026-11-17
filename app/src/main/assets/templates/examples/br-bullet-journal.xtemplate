@@ -1,0 +1,65 @@
+{
+ "xtemplate": 1,
+ "id": "br.xnotes.bullet-journal",
+ "name": "Bullet journal com cabeçalho",
+ "description": "Pontilhado com faixa de título e data, para listas e registros rápidos.",
+ "license": "MIT",
+ "author": "xnotes BR",
+ "tags": [
+  "diário"
+ ],
+ "params": {
+  "spacing": {
+   "type": "length",
+   "default": "5mm",
+   "min": "3mm",
+   "max": "10mm",
+   "label": "Espaço entre pontos",
+   "role": "spacing"
+  }
+ },
+ "items": [
+  {
+   "type": "text",
+   "text": "______________________________",
+   "x": "14mm",
+   "y": "16mm",
+   "size": "3.4mm",
+   "fill": "accent"
+  },
+  {
+   "type": "text",
+   "text": "____/____",
+   "x": "100% - 14mm",
+   "y": "16mm",
+   "size": "3mm",
+   "fill": "ink",
+   "align": "end",
+   "opacity": 0.7
+  },
+  {
+   "type": "group",
+   "x": "10mm",
+   "y": "24mm",
+   "w": "100% - 20mm",
+   "h": "100% - 32mm",
+   "children": [
+    {
+     "type": "repeat",
+     "axis": "xy",
+     "period": "spacing",
+     "children": [
+      {
+       "type": "circle",
+       "cx": 0,
+       "cy": 0,
+       "r": "0.35mm",
+       "fill": "ink",
+       "stroke": "none"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
