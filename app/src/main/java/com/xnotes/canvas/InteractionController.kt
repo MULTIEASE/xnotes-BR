@@ -94,6 +94,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -237,6 +238,23 @@ class InteractionController(
 
     /** Whether holding a freehand ink stroke still snaps it to a recognized shape (spec: "hold to snap"). */
     var detectShapes: Boolean = false
+
+    /** xnotes BR: a closed, shape-sized stroke turns into a perfect shape as soon as the pen lifts. */
+    var autoShapes: Boolean = true
+
+    /** xnotes BR: [stroke] as a perfect closed shape when it is one, big enough not to be a letter. */
+    private fun autoShapeFor(stroke: Stroke): RecognizedShape? {
+        if (!autoShapes || !stroke.tool.isStroke || stroke.tool == Tool.HIGHLIGHTER) return null
+        val pts = stroke.samples
+        if (pts.size < 8) return null
+        val bbox = Rect.bounding(pts.map { it.pos })
+        val mm = state.document.dpi / 25.4
+        if (maxOf(bbox.w, bbox.h) < 14 * mm) return null
+        val gap = pts.first().pos.distanceTo(pts.last().pos)
+        if (gap > 0.22 * hypot(bbox.w, bbox.h)) return null
+        val rec = ShapeRecognizer.recognize(pts) ?: return null
+        return rec.takeIf { it.kind != ShapeKind.LINE && it.kind != ShapeKind.POLYLINE && it.kind != ShapeKind.CURVE }
+    }
 
     /** Tool the stylus side button activates while held, or null to ignore the button. */
     var penButtonTool: Tool? = Tool.ERASER
@@ -1487,6 +1505,11 @@ class InteractionController(
                     scheduleFade()
                 }
                 scribbleErase(stroke, pi) -> Unit
+                !tapCandidate && autoShapeFor(stroke) != null -> {
+                    commitRecognizedShape(stroke, pi, autoShapeFor(stroke)!!)
+                    snappedSelectionPendingMenu = false
+                    clearSelection()
+                }
                 else -> pushStrokeEdit(fileStroke(stroke, pi))
             }
         }

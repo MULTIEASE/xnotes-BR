@@ -2877,6 +2877,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         flowText.highlight = { toolbarInk() }
         controller.penButtonTool = if (p.penButtonTool == "none") null else (Tool.fromId(p.penButtonTool) ?: Tool.ERASER)
         controller.penButton2Tool = if (p.penButton2Tool == "none") null else (Tool.fromId(p.penButton2Tool) ?: Tool.ERASER)
+        controller.autoShapes = p.autoShapes
         controller.penButtonHover = p.penButtonHover
         state.sideMargin = p.sideMargin
         state.pageBorders = !p.hidePageBorders

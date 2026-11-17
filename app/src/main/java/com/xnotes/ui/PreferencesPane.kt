@@ -282,6 +282,7 @@ fun PreferencesPane(
                 Chip(stringResource(R.string.pan_none), prefs.zoomLockPan == "none") { update(prefs.copy(zoomLockPan = "none")) }
             }
             CheckRow(stringResource(R.string.pref_detect_shapes), prefs.detectShapes) { update(prefs.copy(detectShapes = it)) }
+            CheckRow(stringResource(R.string.pref_auto_shapes), prefs.autoShapes) { update(prefs.copy(autoShapes = it)) }
             val tapOptions = tapGestureOptions.map { (id, res) -> id to stringResource(res) }
             // xnotes BR: the pen's buttons have their own screen.
             FieldLabel(stringResource(R.string.pen_buttons_title))

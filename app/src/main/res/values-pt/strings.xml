@@ -1206,4 +1206,5 @@
     <string name="pen_test_got">Botão %1$d: %2$s ✓</string>
     <string name="pen_test_waiting">Botão %1$d: aguardando…</string>
     <string name="pen_width_step">Variação de espessura por clique</string>
+    <string name="pref_auto_shapes">Formas perfeitas: triângulo, quadrado ou círculo fechado fica perfeito ao levantar a caneta</string>
 </resources>
