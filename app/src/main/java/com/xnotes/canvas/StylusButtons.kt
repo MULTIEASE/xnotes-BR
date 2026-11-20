@@ -45,7 +45,7 @@ class StylusButtonLatch {
         e.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS && onStylusMotion(e.buttonState)
 
     internal fun onStylusMotion(buttonState: Int): Boolean {
-        motionHeld = (buttonState and InteractionController.STYLUS_BUTTON_MASK) != 0
+        motionHeld = (buttonState and buttonMask()) != 0
         return !held
     }
 
@@ -56,7 +56,8 @@ class StylusButtonLatch {
     fun onKey(keyCode: Int, down: Boolean): Boolean {
         if (!isStylusButtonKey(keyCode)) return false
         keyHeld = down
-        if (down) keySecondary = keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_SECONDARY || keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_TERTIARY
+        if (down) keySecondary = keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_SECONDARY || keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_TERTIARY ||
+            learnedKeys[keyCode] == 2
         return true
     }
 
@@ -70,7 +71,7 @@ class StylusButtonLatch {
         e.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS && heldWith(e.buttonState)
 
     internal fun heldWith(buttonState: Int): Boolean =
-        (buttonState and InteractionController.STYLUS_BUTTON_MASK) != 0 || held
+        (buttonState and buttonMask()) != 0 || held
 
     /** xnotes BR: whether the button held for [e] is the pen's second (upper) button. */
     fun secondaryFor(e: MotionEvent): Boolean =
@@ -81,11 +82,23 @@ class StylusButtonLatch {
         private var keyHeld = false
         private var keySecondary = false
 
+        /** xnotes BR: key codes the user taught the app for each side button (key code to button 1 or 2). */
+        @Volatile var learnedKeys: Map<Int, Int> = emptyMap()
+
+        /** xnotes BR: `buttonState` bits the user taught the app for button 1 and button 2. */
+        @Volatile var learnedBits1 = 0
+        @Volatile var learnedBits2 = 0
+
+        /** Every bit that counts as a side button, the standard ones and any the user taught. */
+        fun buttonMask(): Int = InteractionController.STYLUS_BUTTON_MASK or learnedBits1 or learnedBits2
+
         /** Bits that mean the first (lower) side button. */
-        val PRIMARY_BITS = MotionEvent.BUTTON_STYLUS_PRIMARY or MotionEvent.BUTTON_SECONDARY
+        val PRIMARY_BITS: Int
+            get() = if (learnedBits1 != 0) learnedBits1 else (MotionEvent.BUTTON_STYLUS_PRIMARY or MotionEvent.BUTTON_SECONDARY) and learnedBits2.inv()
 
         /** Bits that mean the second (upper) side button. */
-        val SECONDARY_BITS = MotionEvent.BUTTON_STYLUS_SECONDARY or MotionEvent.BUTTON_TERTIARY
+        val SECONDARY_BITS: Int
+            get() = if (learnedBits2 != 0) learnedBits2 else (MotionEvent.BUTTON_STYLUS_SECONDARY or MotionEvent.BUTTON_TERTIARY) and learnedBits1.inv()
 
         /** The same pen's button clicks, kept once for the same reason; see [ButtonClick]. */
         val clicks = ButtonClick { ViewConfiguration.getLongPressTimeout().toLong() }
@@ -102,7 +115,8 @@ class StylusButtonLatch {
                 keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_TERTIARY ||
                 keyCode == KeyEvent.KEYCODE_STYLUS_BUTTON_TAIL ||
                 keyCode == InteractionController.VENDOR_HELD_BUTTON_KEYCODE ||
-                keyCode == InteractionController.FOCUS_PEN_PRO_PINCH_KEYCODE
+                keyCode == InteractionController.FOCUS_PEN_PRO_PINCH_KEYCODE ||
+                keyCode in learnedKeys
     }
 }
 
@@ -219,10 +233,12 @@ class PenButtonGestures(
 
     /** Follow a full button mask (hover or touch `buttonState`). */
     fun onMask(mask: Int, at: Long) {
-        val b1 = (mask and StylusButtonLatch.PRIMARY_BITS) != 0
-        val b2 = (mask and StylusButtonLatch.SECONDARY_BITS) != 0
-        val was1 = (lastMask and StylusButtonLatch.PRIMARY_BITS) != 0
-        val was2 = (lastMask and StylusButtonLatch.SECONDARY_BITS) != 0
+        val p1 = StylusButtonLatch.PRIMARY_BITS
+        val p2 = StylusButtonLatch.SECONDARY_BITS
+        val b1 = (mask and p1) != 0
+        val b2 = (mask and p2) != 0
+        val was1 = (lastMask and p1) != 0
+        val was2 = (lastMask and p2) != 0
         if (b1 && !was1) press(1, at)
         if (!b1 && was1) release(1, at)
         if (b2 && !was2) press(2, at)
@@ -231,7 +247,9 @@ class PenButtonGestures(
     }
 
     fun onMotion(e: MotionEvent) {
-        if (e.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) return
+        // xnotes BR: some pens (the Positivo Vision Pen among them) may not call themselves a stylus;
+        // follow any pointer that carries side-button bits, and stylus contacts for the hold rule.
+        if (e.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS && (e.buttonState and StylusButtonLatch.buttonMask()) == 0 && lastMask == 0) return
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                 touching = true
@@ -243,7 +261,7 @@ class PenButtonGestures(
     }
 
     fun onKey(keyCode: Int, isDown: Boolean, at: Long) {
-        val button = when (keyCode) {
+        val button = StylusButtonLatch.learnedKeys[keyCode] ?: when (keyCode) {
             KeyEvent.KEYCODE_STYLUS_BUTTON_PRIMARY -> 1
             KeyEvent.KEYCODE_STYLUS_BUTTON_SECONDARY, KeyEvent.KEYCODE_STYLUS_BUTTON_TERTIARY -> 2
             else -> return

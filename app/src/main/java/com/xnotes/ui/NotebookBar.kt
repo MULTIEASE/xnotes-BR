@@ -44,8 +44,9 @@ import com.xnotes.ui.theme.toComposeColor
 
 /** xnotes BR: fluorescent highlighter colours offered by a double tap on the highlighter box. */
 val NOTEBOOK_FLUO = listOf(
-    Rgba(255, 238, 0), Rgba(57, 255, 20), Rgba(255, 79, 216), Rgba(255, 145, 0),
-    Rgba(0, 210, 255), Rgba(185, 103, 255), Rgba(255, 56, 56),
+    Rgba(255, 255, 0), Rgba(204, 255, 0), Rgba(57, 255, 20), Rgba(0, 255, 171),
+    Rgba(0, 240, 255), Rgba(77, 166, 255), Rgba(191, 95, 255), Rgba(255, 0, 255),
+    Rgba(255, 110, 199), Rgba(255, 159, 0), Rgba(255, 49, 49), Rgba(255, 184, 108),
 )
 
 /** xnotes BR: pen widths offered by a double tap on the pen box. */
@@ -64,6 +65,7 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
     val line = palette.border.toComposeColor()
     val accent = palette.accent.toComposeColor()
     val armed = editor.tool
+    val k = when (editor.notebookBarSize) { "small" -> 0.82f; "large" -> 1.3f; else -> 1f }
     var widthsOpen by remember { mutableStateOf(false) }
     var fluoOpen by remember { mutableStateOf(false) }
     var coloursOpen by remember { mutableStateOf(false) }
@@ -71,7 +73,8 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
     val hlColour = editor.toolConfig(Tool.HIGHLIGHTER).colorOverride ?: NOTEBOOK_FLUO.first()
     val inkColour = editor.toolbarColors.getOrNull(editor.activeColorIndex) ?: Rgba(0, 0, 0)
 
-    Column(modifier.fillMaxWidth().background(bg).padding(horizontal = 10.dp, vertical = 6.dp)) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalBarScale provides k) {
+    Column(modifier.fillMaxWidth().background(bg).padding(horizontal = 10.dp, vertical = (6 * k).dp)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(line))
         Spacer(Modifier.height(6.dp))
         Row(
@@ -160,9 +163,18 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
             SimpleBox(stringResource(R.string.nb_paste_image), false, ink, line, accent) { editor.pasteImage() }
             SimpleBox(stringResource(R.string.undo), false, ink, line, accent) { editor.undo() }
             SimpleBox(stringResource(R.string.nb_new_page), false, ink, line, accent) { editor.addPageAndTurn() }
+            // Bar size: small, medium, large, round and round.
+            SimpleBox(
+                stringResource(when (editor.notebookBarSize) { "small" -> R.string.nb_size_small; "large" -> R.string.nb_size_large; else -> R.string.nb_size_medium }),
+                false, ink, line, accent,
+            ) { editor.setNotebookBarSize(when (editor.notebookBarSize) { "small" -> "medium"; "medium" -> "large"; else -> "small" }) }
         }
     }
+    }
 }
+
+/** xnotes BR: how big the notebook bar's boxes are (small 0.82, medium 1, large 1.3). */
+private val LocalBarScale = androidx.compose.runtime.compositionLocalOf { 1f }
 
 private fun widthDp(w: Double): Dp = (w * 1.2).coerceIn(1.0, 10.0).dp
 
@@ -179,9 +191,10 @@ private fun ToolBox(
     onDouble: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    val k = LocalBarScale.current
     Column(
         Modifier
-            .size(width = 76.dp, height = 48.dp)
+            .size(width = (76 * k).dp, height = (48 * k).dp)
             .background(if (selected) accent.copy(alpha = 0.14f) else Color.Transparent, RoundedCornerShape(10.dp))
             .border(BorderStroke(if (selected) 2.dp else 1.dp, if (selected) accent else line), RoundedCornerShape(10.dp))
             .combinedClickable(onClick = onClick, onDoubleClick = onDouble),
@@ -193,16 +206,17 @@ private fun ToolBox(
 @Composable
 private fun BoxLabel(text: String, ink: Color, selected: Boolean) {
     Text(
-        text, color = ink, fontSize = 11.sp, textAlign = TextAlign.Center, lineHeight = 12.sp, maxLines = 1,
+        text, color = ink, fontSize = (11 * LocalBarScale.current).sp, textAlign = TextAlign.Center, lineHeight = (12 * LocalBarScale.current).sp, maxLines = 1,
         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
     )
 }
 
 @Composable
 private fun SimpleBox(label: String, selected: Boolean, ink: Color, line: Color, accent: Color, dot: Color? = null, onClick: () -> Unit) {
+    val k = LocalBarScale.current
     Row(
         Modifier
-            .size(width = 72.dp, height = 48.dp)
+            .size(width = (72 * k).dp, height = (48 * k).dp)
             .background(if (selected) accent.copy(alpha = 0.14f) else Color.Transparent, RoundedCornerShape(10.dp))
             .border(BorderStroke(if (selected) 2.dp else 1.dp, if (selected) accent else line), RoundedCornerShape(10.dp))
             .clickable(onClick = onClick),
@@ -220,7 +234,7 @@ private fun SimpleBox(label: String, selected: Boolean, ink: Color, line: Color,
 @Composable
 private fun Swatch(colour: Color, selected: Boolean, accent: Color, line: Color, onClick: () -> Unit) {
     Box(
-        Modifier.size(40.dp)
+        Modifier.size((40 * LocalBarScale.current).dp)
             .border(BorderStroke(if (selected) 2.5.dp else 1.dp, if (selected) accent else line), CircleShape)
             .padding(4.dp)
             .background(colour, CircleShape)

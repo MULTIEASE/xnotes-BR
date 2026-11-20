@@ -175,6 +175,12 @@ interface SelectionMenuHost : SwatchHost {
 
     /** xnotes BR: fade that picture and lock it, so the pen draws over it without moving it. */
     fun traceSelectedImage() {}
+
+    /** xnotes BR: whether the selection holds handwriting that can be straightened. */
+    fun canAlignSelection(): Boolean = false
+
+    /** xnotes BR: straighten the selected handwriting: level each line and even out its baseline. */
+    fun alignSelectedWriting() {}
 }
 
 /**
@@ -331,6 +337,12 @@ fun SelectionMenu(
                         text = { Text(stringResource(R.string.lock)) },
                         onClick = { overflowOpen = false; host.lockSelection() },
                     )
+                    if (host.canAlignSelection()) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.align_writing)) },
+                            onClick = { overflowOpen = false; host.alignSelectedWriting() },
+                        )
+                    }
                     if (host.canTraceSelection()) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.trace_image)) },

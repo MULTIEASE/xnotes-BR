@@ -59,6 +59,17 @@ data class Preferences(
     val pageCurl: Boolean = true,
     /** xnotes BR: how much a "thicker"/"thinner" pen click changes the width. */
     val penWidthStep: Double = 0.5,
+    /** xnotes BR: side-button signals the user taught the app (key code, or buttonState bits). */
+    val penButton1Key: Int = -1,
+    val penButton2Key: Int = -1,
+    val penButton1Bits: Int = 0,
+    val penButton2Bits: Int = 0,
+    /** xnotes BR: a pen stroke starts only from this pressure (0 = any contact)... */
+    val penMinPressure: Double = 0.0,
+    /** ...and only this many milliseconds after the pen first reports contact. */
+    val penStartDelayMs: Int = 0,
+    /** xnotes BR: size of the Modo Caderno bar: "small", "medium" or "large". */
+    val notebookBarSize: String = "medium",
     /** Whether the side-button tool also activates during hover (no contact needed); eraser/pan only. */
     val penButtonHover: Boolean = false,
     /** Action mapped to a clean two-finger tap; "none" (default) disables it. */
@@ -167,6 +178,13 @@ data class Preferences(
         .put("auto_shapes", autoShapes)
         .put("page_curl", pageCurl)
         .put("pen_width_step", penWidthStep)
+        .put("pen_button_1_key", penButton1Key)
+        .put("pen_button_2_key", penButton2Key)
+        .put("pen_button_1_bits", penButton1Bits)
+        .put("pen_button_2_bits", penButton2Bits)
+        .put("pen_min_pressure", penMinPressure)
+        .put("pen_start_delay_ms", penStartDelayMs)
+        .put("notebook_bar_size", notebookBarSize)
         .put("pen_button_hover", penButtonHover)
         .put("two_finger_tap", twoFingerTap)
         .put("three_finger_tap", threeFingerTap)
@@ -253,7 +271,7 @@ data class Preferences(
             val zoomLockPan = o.optString("zoom_lock_pan", "single").let { if (it == "double" || it == "none") it else "single" }
             val tapActions = setOf(
                 "none", "undo", "redo", "toggle_pan", "toggle_eraser", "toggle_lasso", "toggle_previous",
-                "next_pen", "prev_pen", "thicker", "thinner", "next_colour", "prev_colour", "next_page", "prev_page", "toggle_notebook", "dictate", "toggle_reading",
+                "next_pen", "prev_pen", "thicker", "thinner", "next_colour", "prev_colour", "next_page", "prev_page", "toggle_notebook", "dictate", "toggle_reading", "radial_menu",
             )
             fun tapAction(key: String, default: String = "none") = o.optString(key, default).let { if (it in tapActions) it else default }
             val legacySeed = Rgba.fromHex(o.optString("material_seed"))
@@ -314,6 +332,13 @@ data class Preferences(
                 autoShapes = o.optBoolean("auto_shapes", true),
                 pageCurl = o.optBoolean("page_curl", true),
                 penWidthStep = o.optDouble("pen_width_step", 0.5).takeIf { it in 0.1..3.0 } ?: 0.5,
+                penButton1Key = o.optInt("pen_button_1_key", -1),
+                penButton2Key = o.optInt("pen_button_2_key", -1),
+                penButton1Bits = o.optInt("pen_button_1_bits", 0),
+                penButton2Bits = o.optInt("pen_button_2_bits", 0),
+                penMinPressure = o.optDouble("pen_min_pressure", 0.0).takeIf { it in 0.0..0.9 } ?: 0.0,
+                penStartDelayMs = o.optInt("pen_start_delay_ms", 0).coerceIn(0, 150),
+                notebookBarSize = o.optString("notebook_bar_size", "medium").takeIf { it in setOf("small", "medium", "large") } ?: "medium",
                 penButtonHover = o.optBoolean("pen_button_hover", false),
                 twoFingerTap = tapAction("two_finger_tap"),
                 threeFingerTap = tapAction("three_finger_tap"),

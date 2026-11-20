@@ -25,6 +25,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -65,10 +67,24 @@ fun VisionPenScreen(editor: Editor, prefs: Preferences, update: (Preferences) ->
 
     DisposableEffect(Unit) {
         editor.penTestMode = true
-        onDispose { editor.penTestMode = false }
+        onDispose { editor.penTestMode = false; PenSignals.learning = 0 }
     }
+    val latest = androidx.compose.runtime.rememberUpdatedState(prefs)
+    DisposableEffect(Unit) {
+        PenSignals.onLearned = { button, key, bits ->
+            val p = latest.value
+            update(
+                if (button == 1) p.copy(penButton1Key = key, penButton1Bits = bits)
+                else p.copy(penButton2Key = key, penButton2Bits = bits),
+            )
+        }
+        onDispose { PenSignals.onLearned = null }
+    }
+    var touchScreen by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    if (touchScreen) PenTouchScreen(prefs, update) { touchScreen = false }
 
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        CaptureDialogPenEvents()
         Box(Modifier.fillMaxSize().background(palette.bg.toComposeColor()), contentAlignment = Alignment.TopCenter) {
             Column(
                 Modifier.widthIn(max = 980.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
@@ -98,6 +114,75 @@ fun VisionPenScreen(editor: Editor, prefs: Preferences, update: (Preferences) ->
                         stringResource(R.string.pen_button_2_upper), color = BUTTON2, fontSize = 12.sp, fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.BottomStart).padding(start = 230.dp, bottom = 12.dp),
                     )
+                }
+
+                // Teach the app each button, and see the raw signals the pen sends.
+                Column(
+                    Modifier.fillMaxWidth().background(card, RoundedCornerShape(18.dp)).border(1.dp, line, RoundedCornerShape(18.dp)).padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(stringResource(R.string.pen_learn_title), color = text, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.pen_learn_help), color = dim, fontSize = 13.sp)
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        for (button in 1..2) {
+                            val colour = if (button == 1) BUTTON1 else BUTTON2
+                            val learning = PenSignals.learning == button
+                            val key = if (button == 1) prefs.penButton1Key else prefs.penButton2Key
+                            val bits = if (button == 1) prefs.penButton1Bits else prefs.penButton2Bits
+                            Column(
+                                Modifier.weight(1f)
+                                    .background(if (learning) colour.copy(alpha = 0.15f) else Color.Transparent, RoundedCornerShape(14.dp))
+                                    .border(BorderStroke(if (learning) 2.dp else 1.dp, if (learning) colour else line), RoundedCornerShape(14.dp))
+                                    .clickable { PenSignals.learning = if (learning) 0 else button }
+                                    .padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Text(
+                                    stringResource(if (learning) R.string.pen_learn_now else R.string.pen_learn_button, button),
+                                    color = if (learning) colour else text, fontSize = 15.sp, fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    when {
+                                        key >= 0 -> stringResource(R.string.pen_learned_key, android.view.KeyEvent.keyCodeToString(key).removePrefix("KEYCODE_"), key)
+                                        bits != 0 -> stringResource(R.string.pen_learned_bits, "0x" + Integer.toHexString(bits))
+                                        else -> stringResource(R.string.pen_learned_none)
+                                    },
+                                    color = dim, fontSize = 12.sp,
+                                )
+                                if (key >= 0 || bits != 0) {
+                                    Text(
+                                        stringResource(R.string.pen_learn_forget), color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.clickable {
+                                            update(if (button == 1) prefs.copy(penButton1Key = -1, penButton1Bits = 0) else prefs.copy(penButton2Key = -1, penButton2Bits = 0))
+                                        }.padding(top = 4.dp),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Text(stringResource(R.string.pen_signals_title), color = text, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Column(
+                        Modifier.fillMaxWidth().background(Color(0xFF1F2328), RoundedCornerShape(10.dp)).padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        if (PenSignals.log.isEmpty()) {
+                            Text(stringResource(R.string.pen_signals_empty), color = Color(0xFFC9CDD3), fontSize = 12.sp)
+                        }
+                        PenSignals.log.forEach { Text(it, color = Color(0xFFE6E8EB), fontSize = 12.sp) }
+                    }
+                }
+
+                // Touch fine tuning.
+                Row(
+                    Modifier.fillMaxWidth().background(card, RoundedCornerShape(18.dp)).border(1.dp, line, RoundedCornerShape(18.dp))
+                        .clickable { touchScreen = true }.padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.pen_touch_title), color = text, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.pen_touch_card_help), color = dim, fontSize = 13.sp)
+                    }
+                    Text(stringResource(R.string.pen_touch_open), color = accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
 
                 // One card per button.
@@ -231,5 +316,41 @@ private fun PenDrawing(modifier: Modifier) {
         val bh = 10.dp.toPx()
         drawRoundRect(BUTTON1, Offset(left + tipLen + 40.dp.toPx(), cy - barrelH / 2 - bh * 0.6f), Size(bw, bh), CornerRadius(bh / 2))
         drawRoundRect(BUTTON2, Offset(left + tipLen + 100.dp.toPx(), cy - barrelH / 2 - bh * 0.6f), Size(bw, bh), CornerRadius(bh / 2))
+    }
+}
+
+
+/**
+ * xnotes BR: this screen is a dialog, its own window, so pen keys and button events land there
+ * instead of in the activity. Wrap the dialog window's callback to hear them too.
+ */
+@Composable
+private fun CaptureDialogPenEvents() {
+    val view = androidx.compose.ui.platform.LocalView.current
+    DisposableEffect(view) {
+        val window = (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
+        val original = window?.callback
+        if (window != null && original != null) {
+            window.callback = object : android.view.Window.Callback by original {
+                override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+                    PenSignals.onKey(event)
+                    PenSignals.forwardKey?.invoke(event)
+                    return original.dispatchKeyEvent(event)
+                }
+
+                override fun dispatchGenericMotionEvent(event: android.view.MotionEvent): Boolean {
+                    PenSignals.onMotion(event)
+                    PenSignals.forwardMotion?.invoke(event)
+                    return original.dispatchGenericMotionEvent(event)
+                }
+
+                override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+                    PenSignals.onMotion(event)
+                    PenSignals.forwardMotion?.invoke(event)
+                    return original.dispatchTouchEvent(event)
+                }
+            }
+        }
+        onDispose { if (window != null && original != null) window.callback = original }
     }
 }

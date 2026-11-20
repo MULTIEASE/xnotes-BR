@@ -220,8 +220,21 @@ class EditorActivity : ComponentActivity() {
         onGesture = { b, double -> editor?.active?.onPenButtonGesture(b, double) },
     )
 
+    init {
+        // xnotes BR: the pen settings dialog is its own window; its pen events come back here.
+        com.xnotes.ui.PenSignals.forwardKey = { e ->
+            if (e.repeatCount == 0) penButtonGestures.onKey(e.keyCode, e.action == KeyEvent.ACTION_DOWN, e.eventTime)
+        }
+        com.xnotes.ui.PenSignals.forwardMotion = { e ->
+            if (e.actionMasked == MotionEvent.ACTION_DOWN || e.actionMasked == MotionEvent.ACTION_UP ||
+                e.actionMasked == MotionEvent.ACTION_MOVE || e.actionMasked == MotionEvent.ACTION_CANCEL
+            ) penButtonGestures.onMotion(e) else penButtonGestures.onMask(e.buttonState, e.eventTime)
+        }
+    }
+
     override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
-        if (ev.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS) {
+        com.xnotes.ui.PenSignals.onMotion(ev)
+        if (ev.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS || (ev.buttonState and com.xnotes.canvas.StylusButtonLatch.buttonMask()) != 0) {
             when (ev.actionMasked) {
                 MotionEvent.ACTION_BUTTON_PRESS, MotionEvent.ACTION_BUTTON_RELEASE,
                 MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_HOVER_EXIT ->
@@ -232,6 +245,7 @@ class EditorActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        com.xnotes.ui.PenSignals.onKey(event)
         if (event.repeatCount == 0) penButtonGestures.onKey(event.keyCode, event.action == KeyEvent.ACTION_DOWN, event.eventTime)
         // The pen writes in whichever pane has the focus, so its button keys go to that pane too.
         if (editor?.active?.onStylusButtonKey(event) == true) return true
@@ -249,6 +263,7 @@ class EditorActivity : ComponentActivity() {
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         StylusButtonLatch.clicks.onTouch(ev) // a side-button press with the pen tip down is a hold, never a click
         penButtonGestures.onMotion(ev)
+        com.xnotes.ui.PenSignals.onMotion(ev)
         val standard = standardPenAction(ev.actionMasked)
         if (standard < 0 || ev.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) {
             return eyedropperTouch.dispatch(ev, superTouch)
@@ -1596,6 +1611,7 @@ private fun EditorPane(
                             ZoomLockHint(editor)
                             if (editor.readingMode) com.xnotes.ui.ReadingOverlay(editor)
                             com.xnotes.ui.PageTurnOverlay(editor)
+                            com.xnotes.ui.RadialMenu(editor)
                         }
                     }
                 }

@@ -116,6 +116,7 @@ internal val tapGestureOptions = listOf(
     "toggle_notebook" to R.string.action_toggle_notebook,
     "dictate" to R.string.action_dictate,
     "toggle_reading" to R.string.action_toggle_reading,
+    "radial_menu" to R.string.action_radial_menu,
 )
 
 /**
@@ -290,6 +291,9 @@ fun PreferencesPane(
             var penScreen by remember { mutableStateOf(false) }
             Chip(stringResource(R.string.pen_screen_open), true) { penScreen = true }
             if (penScreen) VisionPenScreen(editor, prefs, ::update) { penScreen = false }
+            var touchScreen by remember { mutableStateOf(false) }
+            Chip(stringResource(R.string.pen_touch_title), true) { touchScreen = true }
+            if (touchScreen) PenTouchScreen(prefs, ::update) { touchScreen = false }
             FieldLabel(stringResource(R.string.pref_two_finger_tap))
             OptionDropdown(tapOptions, prefs.twoFingerTap) { update(prefs.copy(twoFingerTap = it)) }
             FieldLabel(stringResource(R.string.pref_three_finger_tap))

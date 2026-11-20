@@ -675,7 +675,66 @@ class InteractionController(
 
     // --- touch entry point ---
 
+    /** xnotes BR: a pen stroke starts only from this pressure, and this long after first contact. */
+    var penMinPressure = 0f
+    var penStartDelayMs = 0L
+    private var gateDownAt = -1L
+    private var gateDownX = 0f
+    private var gateDownY = 0f
+
+    /**
+     * xnotes BR: the contact gate. Some pens report contact while still a hair above the glass,
+     * so ink starts before the tip lands. With a minimum pressure or a start delay set, a pen
+     * contact is held back until it presses hard enough for long enough, then starts there.
+     * Returns true when [e] was swallowed.
+     */
+    private fun gatePenContact(e: MotionEvent): Boolean {
+        if (penMinPressure <= 0f && penStartDelayMs <= 0L) return false
+        if (e.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) { gateDownAt = -1L; return false }
+        fun ready(ev: MotionEvent) = ev.getPressure(0) >= penMinPressure && ev.eventTime - gateDownAt >= penStartDelayMs
+        when (e.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                gateDownAt = e.eventTime
+                gateDownX = e.x
+                gateDownY = e.y
+                return !ready(e)
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (gateDownAt < 0) return false
+                if (!ready(e)) return true
+                gateDownAt = -1L
+                val down = MotionEvent.obtain(e)
+                down.action = MotionEvent.ACTION_DOWN
+                touchTakenBack = false
+                tapDown(down)
+                handleDown(down)
+                downView = state.snapshotView()
+                down.recycle()
+                return false
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (gateDownAt < 0) return false
+                gateDownAt = -1L
+                // A light tap never started: let tools that act on taps (lasso, select, text) still get it.
+                if (e.actionMasked == MotionEvent.ACTION_UP && !tool.isStroke && tool != Tool.ERASER) {
+                    val down = MotionEvent.obtain(e)
+                    down.action = MotionEvent.ACTION_DOWN
+                    down.setLocation(gateDownX, gateDownY)
+                    touchTakenBack = false
+                    tapDown(down)
+                    handleDown(down)
+                    down.recycle()
+                    return false
+                }
+                return true
+            }
+            // Another finger or pointer while the pen waits: keep waiting, and keep it out of the gesture.
+            else -> return gateDownAt >= 0
+        }
+    }
+
     fun onTouch(e: MotionEvent): Boolean {
+        if (gatePenContact(e)) return true
         if (touchTakenBack && e.actionMasked != MotionEvent.ACTION_DOWN) return true
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> {

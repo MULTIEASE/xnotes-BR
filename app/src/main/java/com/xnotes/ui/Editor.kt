@@ -1982,6 +1982,61 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
 
     override fun canTraceSelection(): Boolean = controller.selectedItems().singleOrNull() is ImageItem
 
+    // --- xnotes BR: alinhar a escrita (primeiro passo da melhoria da letra) ---
+
+    override fun canAlignSelection(): Boolean = controller.selectedItems().count { it is com.xnotes.core.model.Stroke } >= 2
+
+    override fun alignSelectedWriting() {
+        val strokes = controller.selectedItems().filterIsInstance<com.xnotes.core.model.Stroke>()
+        if (strokes.size < 2) return
+        controller.clearSelection()
+        val boxes = strokes.associateWith { it.bounds() }
+        val heights = boxes.values.map { it.h }.sorted()
+        val medH = heights[heights.size / 2].coerceAtLeast(1e-3)
+        // Group into written lines by vertical centre.
+        val rows = mutableListOf<MutableList<com.xnotes.core.model.Stroke>>()
+        val rowCentre = mutableListOf<Double>()
+        for (s in strokes.sortedBy { boxes.getValue(it).centerY }) {
+            val cy = boxes.getValue(s).centerY
+            val i = rowCentre.indexOfFirst { kotlin.math.abs(it - cy) <= medH * 0.7 }
+            if (i >= 0) {
+                rows[i].add(s)
+                rowCentre[i] = rows[i].map { boxes.getValue(it).centerY }.average()
+            } else {
+                rows.add(mutableListOf(s)); rowCentre.add(cy)
+            }
+        }
+        val moves = mutableListOf<com.xnotes.core.history.Command>()
+        for (row in rows) {
+            if (row.size < 2) continue
+            val core = row.filter { val h = boxes.getValue(it).h; h in medH * 0.45..medH * 1.7 }.ifEmpty { row }
+            val xs = core.map { boxes.getValue(it).centerX }
+            val ys = core.map { boxes.getValue(it).bottom }
+            val mx = xs.average()
+            val my = ys.average()
+            val varX = xs.sumOf { (it - mx) * (it - mx) }
+            val slope = if (varX > 1e-6) (xs.indices.sumOf { (xs[it] - mx) * (ys[it] - my) } / varX).coerceIn(-0.35, 0.35) else 0.0
+            val levelled = core.map { boxes.getValue(it).bottom - slope * (boxes.getValue(it).centerX - mx) }.sorted()
+            val baseline = levelled[levelled.size / 2]
+            for (s in row) {
+                val b = boxes.getValue(s)
+                val deskew = -slope * (b.centerX - mx)
+                val snap = if (s in core) (baseline - (b.bottom + deskew)) * 0.75 else 0.0
+                val dy = deskew + snap
+                if (kotlin.math.abs(dy) > 1e-4) moves.add(com.xnotes.core.history.MoveItems(listOf(s), 0.0, dy))
+            }
+        }
+        if (moves.isEmpty()) return
+        val cmd = com.xnotes.core.history.CompositeCommand(moves)
+        cmd.redo()
+        history.push(cmd)
+        state.document.dirty = true
+        state.refreshAllInk()
+        refreshContent()
+        view.requestRender()
+        message = appContext.getString(R.string.align_writing_done)
+    }
+
     override fun traceSelectedImage() {
         val item = controller.selectedItems().singleOrNull() as? ImageItem ?: return
         val image = item.image
@@ -2878,6 +2933,14 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         controller.penButtonTool = if (p.penButtonTool == "none") null else (Tool.fromId(p.penButtonTool) ?: Tool.ERASER)
         controller.penButton2Tool = if (p.penButton2Tool == "none") null else (Tool.fromId(p.penButton2Tool) ?: Tool.ERASER)
         controller.autoShapes = p.autoShapes
+        controller.penMinPressure = p.penMinPressure.toFloat()
+        controller.penStartDelayMs = p.penStartDelayMs.toLong()
+        com.xnotes.canvas.StylusButtonLatch.learnedKeys = buildMap {
+            if (p.penButton1Key >= 0) put(p.penButton1Key, 1)
+            if (p.penButton2Key >= 0) put(p.penButton2Key, 2)
+        }
+        com.xnotes.canvas.StylusButtonLatch.learnedBits1 = p.penButton1Bits
+        com.xnotes.canvas.StylusButtonLatch.learnedBits2 = p.penButton2Bits
         controller.penButtonHover = p.penButtonHover
         state.sideMargin = p.sideMargin
         state.pageBorders = !p.hidePageBorders
@@ -2935,6 +2998,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         for (editor in listOfNotNull(this, sibling)) {
             editor.fullscreen = p.startFullscreen ?: true
             editor.notebookBar = p.notebookBar
+            editor.notebookBarSize = p.notebookBarSize
             editor.applyPagePrefsToState(p)
             editor.republishFlow(invalidate = true)
             editor.state.invalidateAllCaches()
@@ -6421,7 +6485,10 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
 
 
     /** Run the action a two/three-finger tap or stylus double-tap is mapped to; "none" does nothing. */
-    private fun dispatchTapGesture(action: String) = when {
+    /** xnotes BR: the ring of tools a pen button can open over the page. */
+    var radialOpen by mutableStateOf(false)
+
+    fun dispatchTapGesture(action: String) = when {
         // The pen's taps arrive here whichever surface is up; a canvas on top must not edit the note under it.
         canvasOpen -> infinite.dispatchTapGesture(action)
         action == "undo" -> undo()
@@ -6441,6 +6508,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         action == "toggle_notebook" -> toggleNotebookBar()
         action == "dictate" -> toggleDictation()
         action == "toggle_reading" -> toggleReadingMode()
+        action == "radial_menu" -> { radialOpen = !radialOpen }
         else -> Unit
     }
 
@@ -6539,6 +6607,8 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
     /** Whether the notebook bar (printed-style tool boxes) shows at the foot of the page. */
     var notebookBar by mutableStateOf(preferences.notebookBar)
         private set
+    var notebookBarSize by mutableStateOf(preferences.notebookBarSize)
+        private set
 
     fun toggleNotebookBar() {
         val on = !preferences.notebookBar
@@ -6553,7 +6623,16 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         updateToolConfig(Tool.PEN, cfg.copy(baseWidth = com.xnotes.core.tools.ToolConversions.snapWidth(Tool.PEN, width)))
     }
 
-    fun notebookTool(t: Tool) = selectTool(t)
+    fun notebookTool(t: Tool) {
+        selectTool(t)
+        // The notebook highlighter is always a fluorescent ink, never the pen's colour.
+        if (t == Tool.HIGHLIGHTER) {
+            val c = controller.configFor(Tool.HIGHLIGHTER).colorOverride
+            if (c == null || c !in NOTEBOOK_FLUO) notebookHighlighter(NOTEBOOK_FLUO.first())
+        }
+    }
+
+    fun setNotebookBarSize(size: String) = applyPreferences(preferences.copy(notebookBarSize = size))
 
     fun notebookHighlighter(c: com.xnotes.core.model.Rgba) {
         selectTool(Tool.HIGHLIGHTER)
