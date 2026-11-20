@@ -167,7 +167,7 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
             SimpleBox(
                 stringResource(when (editor.notebookBarSize) { "small" -> R.string.nb_size_small; "large" -> R.string.nb_size_large; else -> R.string.nb_size_medium }),
                 false, ink, line, accent,
-            ) { editor.setNotebookBarSize(when (editor.notebookBarSize) { "small" -> "medium"; "medium" -> "large"; else -> "small" }) }
+            ) { editor.chooseNotebookBarSize(when (editor.notebookBarSize) { "small" -> "medium"; "medium" -> "large"; else -> "small" }) }
         }
     }
     }

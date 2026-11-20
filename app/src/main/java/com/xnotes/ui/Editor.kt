@@ -6632,7 +6632,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         }
     }
 
-    fun setNotebookBarSize(size: String) = applyPreferences(preferences.copy(notebookBarSize = size))
+    fun chooseNotebookBarSize(size: String) = applyPreferences(preferences.copy(notebookBarSize = size))
 
     fun notebookHighlighter(c: com.xnotes.core.model.Rgba) {
         selectTool(Tool.HIGHLIGHTER)
