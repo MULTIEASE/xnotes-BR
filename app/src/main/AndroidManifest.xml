@@ -9,6 +9,8 @@
          foreground service so a recording carries on with the screen off or another app in front.
          Android 13 and later also ask whether that service may show its notification. -->
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <!-- xnotes BR: downloads the handwriting recognition model once. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />

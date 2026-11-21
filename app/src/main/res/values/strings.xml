@@ -1181,7 +1181,7 @@
     <string name="toolbar_size_regular">Regular</string>
     <string name="toolbar_size_comfortable">Comfortable</string>
     <!-- xnotes BR -->
-    <string name="pen_buttons_title">Pen side buttons</string>
+    <string name="pen_buttons_title">Vision Pen (Positivo pen) – buttons</string>
     <string name="pen_buttons_help">Each button can do one thing while held and other things when clicked or double-clicked with the pen away from the screen.</string>
     <string name="pen_button_1_lower">Button 1 (lower, near the tip)</string>
     <string name="pen_button_2_upper">Button 2 (upper)</string>
@@ -1219,7 +1219,7 @@
     <string name="reading_exit">Exit reading</string>
     <string name="caption_line_colour">Line colour</string>
     <string name="caption_margin_colour">Margin and heading colour</string>
-    <string name="pen_screen_open">Set up the pen buttons…</string>
+    <string name="pen_screen_open">Set up the Vision Pen (Positivo pen)…</string>
     <string name="pen_screen_subtitle">Each button has three gestures: click, double click and hold. Clicks count with the pen away from the screen.</string>
     <string name="pen_test_title">Test the buttons</string>
     <string name="pen_test_help">Press a pen button, away from the screen, to see whether the app hears it.</string>
@@ -1229,7 +1229,7 @@
     <string name="pref_auto_shapes">Perfect shapes: a closed triangle, square or circle straightens when the pen lifts</string>
     <string name="nb_paste_image">Paste image</string>
     <string name="pref_page_curl">Turn pages like a notebook leaf (animation)</string>
-    <string name="pen_touch_title">Fine-tune writing</string>
+    <string name="pen_touch_title">Vision Pen – fine-tune writing</string>
     <string name="pen_touch_subtitle">Stop ink from starting before the pen tip lands. Try the settings on the test sheet below.</string>
     <string name="pen_min_pressure">Pressure to start writing</string>
     <string name="pen_min_pressure_help">Ink starts only once the pen presses at least this hard. Raise it if lines start while the pen is still above the screen.</string>
@@ -1259,4 +1259,23 @@
     <string name="align_writing_done">Handwriting straightened. Undo puts it back.</string>
     <string name="action_radial_menu">Radial menu of tools</string>
     <string name="radial_close">Tap outside to close</string>
+    <string name="pen_calib_title">Automatic calibration (recommended)</string>
+    <string name="pen_calib_help">Two quick steps: hold the pen just above the sheet without touching, then write a word. The app works out exactly where touching starts.</string>
+    <string name="pen_calib_step_hover">Step 1 of 2: hold the pen just ABOVE the test sheet, moving it a little, WITHOUT touching… (3 seconds)</string>
+    <string name="pen_calib_step_write">Step 2 of 2: now write a word or two on the test sheet as you normally do, then tap Finish.</string>
+    <string name="pen_calib_start">Calibrate</string>
+    <string name="pen_calib_finish">Finish calibration</string>
+    <string name="pen_calib_ok">Calibrated: ink now starts only when the tip touches, and stops when you lift it between words. Try it on the test sheet.</string>
+    <string name="pen_calib_no_hover">The tablet did not report the hovering pen as a touch. The pressure was set from your writing; ink now also stops when you lift the pen between words.</string>
+    <string name="pen_calib_mixed">Hovering and light writing gave similar pressures. A middle value was chosen; write a little firmer, or raise the pressure by hand.</string>
+    <string name="pen_calib_flat">This pen does not report pressure (always the same value), so pressure cannot tell touching from hovering. A start delay was set instead.</string>
+    <string name="pen_gate_fingers">Also apply to touches the tablet reports as a finger (turn on if the pen shows up as \"finger\" in the meter)</string>
+    <string name="nb_record_stop">Stop</string>
+    <string name="nb_ink_to_text">Ink → text</string>
+    <string name="nb_radial">Tools ring</string>
+    <string name="ink_to_text_preparing">Preparing handwriting recognition… (downloads about 20 MB once)</string>
+    <string name="ink_to_text_on">Handwriting to text is on: what you write becomes typed text. Tap the button again to turn it off.</string>
+    <string name="ink_to_text_failed">Could not prepare handwriting recognition. Connect to the internet once and try again.</string>
+    <string name="other_pens_title">Other pens (not the Positivo Vision Pen)</string>
+    <string name="other_pens_help">These settings are for other styluses such as the Samsung S Pen, USI pens or the Redmi Smart Pen.</string>
 </resources>

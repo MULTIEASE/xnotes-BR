@@ -298,6 +298,9 @@ fun PreferencesPane(
             OptionDropdown(tapOptions, prefs.twoFingerTap) { update(prefs.copy(twoFingerTap = it)) }
             FieldLabel(stringResource(R.string.pref_three_finger_tap))
             OptionDropdown(tapOptions, prefs.threeFingerTap) { update(prefs.copy(threeFingerTap = it)) }
+            // Settings below are for other styluses (S Pen, USI, Redmi...), not the Positivo Vision Pen.
+            FieldLabel(stringResource(R.string.other_pens_title))
+            Text(stringResource(R.string.other_pens_help), color = palette.textDim.toComposeColor(), fontSize = 12.sp)
             FieldLabel(stringResource(R.string.pref_stylus_double_tap))
             OptionDropdown(tapOptions, prefs.stylusDoubleTap) { update(prefs.copy(stylusDoubleTap = it)) }
             FieldLabel(stringResource(R.string.pref_stylus_button_tap))

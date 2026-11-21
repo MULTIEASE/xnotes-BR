@@ -675,66 +675,56 @@ class InteractionController(
 
     // --- touch entry point ---
 
-    /** xnotes BR: a pen stroke starts only from this pressure, and this long after first contact. */
-    var penMinPressure = 0f
-    var penStartDelayMs = 0L
-    private var gateDownAt = -1L
-    private var gateDownX = 0f
-    private var gateDownY = 0f
+    /** xnotes BR: told of each pen stroke as it is filed (for handwriting to text). */
+    var onInkFiled: ((Stroke, Int) -> Unit)? = null
 
     /**
-     * xnotes BR: the contact gate. Some pens report contact while still a hair above the glass,
-     * so ink starts before the tip lands. With a minimum pressure or a start delay set, a pen
-     * contact is held back until it presses hard enough for long enough, then starts there.
-     * Returns true when [e] was swallowed.
+     * xnotes BR: replace handwritten [strokes] on page [pageIndex] with typed [text] in [face],
+     * sized to the writing and sitting on its baseline, as one undo step. False when the strokes
+     * are gone (erased or undone meanwhile).
      */
-    private fun gatePenContact(e: MotionEvent): Boolean {
-        if (penMinPressure <= 0f && penStartDelayMs <= 0L) return false
-        if (e.getToolType(0) != MotionEvent.TOOL_TYPE_STYLUS) { gateDownAt = -1L; return false }
-        fun ready(ev: MotionEvent) = ev.getPressure(0) >= penMinPressure && ev.eventTime - gateDownAt >= penStartDelayMs
-        when (e.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                gateDownAt = e.eventTime
-                gateDownX = e.x
-                gateDownY = e.y
-                return !ready(e)
-            }
-            MotionEvent.ACTION_MOVE -> {
-                if (gateDownAt < 0) return false
-                if (!ready(e)) return true
-                gateDownAt = -1L
-                val down = MotionEvent.obtain(e)
-                down.action = MotionEvent.ACTION_DOWN
-                touchTakenBack = false
-                tapDown(down)
-                handleDown(down)
-                downView = state.snapshotView()
-                down.recycle()
-                return false
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (gateDownAt < 0) return false
-                gateDownAt = -1L
-                // A light tap never started: let tools that act on taps (lasso, select, text) still get it.
-                if (e.actionMasked == MotionEvent.ACTION_UP && !tool.isStroke && tool != Tool.ERASER) {
-                    val down = MotionEvent.obtain(e)
-                    down.action = MotionEvent.ACTION_DOWN
-                    down.setLocation(gateDownX, gateDownY)
-                    touchTakenBack = false
-                    tapDown(down)
-                    handleDown(down)
-                    down.recycle()
-                    return false
-                }
-                return true
-            }
-            // Another finger or pointer while the pen waits: keep waiting, and keep it out of the gesture.
-            else -> return gateDownAt >= 0
-        }
+    fun replaceInkWithText(pageIndex: Int, strokes: List<Stroke>, text: String, face: com.xnotes.core.pal.FontFace): Boolean {
+        val page = state.document.pages.getOrNull(pageIndex) ?: return false
+        val present = strokes.filter { s -> page.items.any { it === s } }
+        if (present.isEmpty()) return false
+        var box = present.first().bounds()
+        for (s in present.drop(1)) box = box.union(s.bounds())
+        val ptPerPx = 72.0 / state.document.dpi
+        // Handwriting runs about 1.4 times the height of its letters' body; type a little smaller.
+        val sizePt = (box.h * ptPerPx * 0.62).coerceIn(9.0, 40.0)
+        val sizePx = sizePt / ptPerPx
+        val item = TextItem(Pt(box.left, box.bottom - sizePx * 1.25), 0.0, 0.0, text, inkColor, sizePt, face, textMeasurer)
+        val measured = textMeasurer.measure(text, item.font, 100000.0, TextItem.FLAGS).w
+        item.width = maxOf(measured + sizePx * 0.6, box.w * 0.6)
+        val dirty = present.fold(box) { acc, s -> acc.union(s.paintBounds()) }
+        for (s in present) { val i = page.items.indexOfFirst { it === s }; if (i >= 0) page.items.removeAt(i) }
+        page.items.add(item)
+        history.push(CompositeCommand(listOf(EraseItems(present.map { page to it }), AddItem(page, item))))
+        if (!state.repairRegion(page, dirty.union(item.bounds()).outset(REPAIR_PAD))) state.invalidatePage(page)
+        state.document.dirty = true
+        onContentChanged()
+        requestRender()
+        return true
     }
 
+    /** xnotes BR: the pen contact filter (ink only while the tip really presses; see [PenContactFilter]). */
+    private val contactFilter = PenContactFilter { ev -> onTouchInner(ev) }
+    var penMinPressure: Float
+        get() = contactFilter.minPressure
+        set(v) { contactFilter.minPressure = v }
+    var penStartDelayMs: Long
+        get() = contactFilter.startDelayMs
+        set(v) { contactFilter.startDelayMs = v }
+    var penGateFingers: Boolean
+        get() = contactFilter.alsoFingers
+        set(v) { contactFilter.alsoFingers = v }
+
     fun onTouch(e: MotionEvent): Boolean {
-        if (gatePenContact(e)) return true
+        if (contactFilter.feed(e) { !tool.isStroke && tool != Tool.ERASER }) return true
+        return onTouchInner(e)
+    }
+
+    private fun onTouchInner(e: MotionEvent): Boolean {
         if (touchTakenBack && e.actionMasked != MotionEvent.ACTION_DOWN) return true
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -1569,7 +1559,10 @@ class InteractionController(
                     snappedSelectionPendingMenu = false
                     clearSelection()
                 }
-                else -> pushStrokeEdit(fileStroke(stroke, pi))
+                else -> {
+                    pushStrokeEdit(fileStroke(stroke, pi))
+                    if (stroke.tool.isStroke && stroke.tool != Tool.HIGHLIGHTER) onInkFiled?.invoke(stroke, pi)
+                }
             }
         }
         // Nothing was committed here (a dismissing tap, or ephemeral ink), but a crossing may

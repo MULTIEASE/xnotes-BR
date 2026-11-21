@@ -214,7 +214,7 @@ object ToolConversions {
         Tool.HIGHLIGHTER -> 4.0..120.0
         Tool.ERASER -> 1.0..80.0
         Tool.TAPE -> TapeItem.MIN_WIDTH..TapeItem.MAX_WIDTH
-        else -> 1.0..20.0
+        else -> 0.5..20.0
     }
 
     /** Every ink width slider moves in these steps, so the width its label shows is the width drawn. */

@@ -68,6 +68,8 @@ data class Preferences(
     val penMinPressure: Double = 0.0,
     /** ...and only this many milliseconds after the pen first reports contact. */
     val penStartDelayMs: Int = 0,
+    /** xnotes BR: apply that filter also to touches the tablet calls fingers (pens that report so). */
+    val penGateFingers: Boolean = false,
     /** xnotes BR: size of the Modo Caderno bar: "small", "medium" or "large". */
     val notebookBarSize: String = "medium",
     /** Whether the side-button tool also activates during hover (no contact needed); eraser/pan only. */
@@ -184,6 +186,7 @@ data class Preferences(
         .put("pen_button_2_bits", penButton2Bits)
         .put("pen_min_pressure", penMinPressure)
         .put("pen_start_delay_ms", penStartDelayMs)
+        .put("pen_gate_fingers", penGateFingers)
         .put("notebook_bar_size", notebookBarSize)
         .put("pen_button_hover", penButtonHover)
         .put("two_finger_tap", twoFingerTap)
@@ -338,6 +341,7 @@ data class Preferences(
                 penButton2Bits = o.optInt("pen_button_2_bits", 0),
                 penMinPressure = o.optDouble("pen_min_pressure", 0.0).takeIf { it in 0.0..0.9 } ?: 0.0,
                 penStartDelayMs = o.optInt("pen_start_delay_ms", 0).coerceIn(0, 150),
+                penGateFingers = o.optBoolean("pen_gate_fingers", false),
                 notebookBarSize = o.optString("notebook_bar_size", "medium").takeIf { it in setOf("small", "medium", "large") } ?: "medium",
                 penButtonHover = o.optBoolean("pen_button_hover", false),
                 twoFingerTap = tapAction("two_finger_tap"),

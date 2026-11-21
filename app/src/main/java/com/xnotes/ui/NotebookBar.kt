@@ -50,7 +50,7 @@ val NOTEBOOK_FLUO = listOf(
 )
 
 /** xnotes BR: pen widths offered by a double tap on the pen box. */
-val NOTEBOOK_WIDTHS = listOf(0.5, 1.0, 1.5, 2.5, 3.5, 5.0, 8.0)
+val NOTEBOOK_WIDTHS = listOf(0.5, 1.0, 1.5, 2.0, 2.5, 3.5, 5.0, 8.0)
 
 /**
  * xnotes BR: the "Modo Caderno" bar, in the app's own colours. One box per tool: a tap arms it,
@@ -69,6 +69,7 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
     var widthsOpen by remember { mutableStateOf(false) }
     var fluoOpen by remember { mutableStateOf(false) }
     var coloursOpen by remember { mutableStateOf(false) }
+    @Suppress("UNUSED_VARIABLE") val configVersion = editor.toolConfigVersion // recompose when a pen width changes
     val penWidth = editor.toolConfig(Tool.PEN).baseWidth
     val hlColour = editor.toolConfig(Tool.HIGHLIGHTER).colorOverride ?: NOTEBOOK_FLUO.first()
     val inkColour = editor.toolbarColors.getOrNull(editor.activeColorIndex) ?: Rgba(0, 0, 0)
@@ -154,7 +155,16 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
                 }
             }
             Box(Modifier.width(1.dp).height(40.dp).background(line))
-            SimpleBox(stringResource(R.string.nb_record), false, ink, line, accent, dot = Color(0xFFD93025)) { onRecord() }
+            // Record: one tap starts, the next tap stops and places the recording.
+            val recordingNow = AudioRecording.session != null
+            SimpleBox(
+                stringResource(if (recordingNow) R.string.nb_record_stop else R.string.nb_record), recordingNow, ink, line, accent,
+                dot = Color(0xFFD93025),
+            ) { if (recordingNow) AudioRecording.stop() else onRecord() }
+            // Handwriting to typed text.
+            SimpleBox(stringResource(R.string.nb_ink_to_text), editor.inkToText, ink, line, accent) { editor.toggleInkToText() }
+            // Radial menu of tools.
+            SimpleBox(stringResource(R.string.nb_radial), editor.radialOpen, ink, line, accent) { editor.radialOpen = !editor.radialOpen }
             SimpleBox(
                 stringResource(if (editor.dictating || editor.dictationArmed) R.string.nb_dictate_stop else R.string.nb_dictate),
                 editor.dictating || editor.dictationArmed, ink, line, accent,

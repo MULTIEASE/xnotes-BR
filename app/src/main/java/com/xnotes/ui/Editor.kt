@@ -2935,6 +2935,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         controller.autoShapes = p.autoShapes
         controller.penMinPressure = p.penMinPressure.toFloat()
         controller.penStartDelayMs = p.penStartDelayMs.toLong()
+        controller.penGateFingers = p.penGateFingers
         com.xnotes.canvas.StylusButtonLatch.learnedKeys = buildMap {
             if (p.penButton1Key >= 0) put(p.penButton1Key, 1)
             if (p.penButton2Key >= 0) put(p.penButton2Key, 2)
@@ -6582,6 +6583,67 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         }
     }
 
+    // --- xnotes BR: inteligência de escrita (o que a caneta escreve vira texto digitado) ---
+
+    var inkToText by mutableStateOf(false)
+        private set
+    private val inkRecognizer by lazy { com.xnotes.platform.InkRecognizer() }
+    private val inkPending = mutableListOf<Pair<com.xnotes.core.model.Stroke, Int>>()
+    private val inkHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val inkFlush = Runnable { flushInkToText() }
+    private var inkHooked = false
+
+    fun toggleInkToText() {
+        if (inkToText) {
+            inkToText = false
+            inkHandler.removeCallbacks(inkFlush)
+            inkPending.clear()
+            return
+        }
+        if (!inkHooked) {
+            inkHooked = true
+            controller.onInkFiled = { stroke, pi ->
+                if (inkToText) {
+                    inkPending.add(stroke to pi)
+                    inkHandler.removeCallbacks(inkFlush)
+                    inkHandler.postDelayed(inkFlush, 1300L)
+                }
+            }
+        }
+        message = appContext.getString(R.string.ink_to_text_preparing)
+        inkRecognizer.ensureModel { ok ->
+            if (ok) {
+                inkToText = true
+                message = appContext.getString(R.string.ink_to_text_on)
+            } else {
+                message = appContext.getString(R.string.ink_to_text_failed)
+            }
+        }
+    }
+
+    private fun flushInkToText() {
+        if (!inkToText || inkPending.isEmpty()) return
+        val batch = inkPending.toList()
+        inkPending.clear()
+        for ((pi, group) in batch.groupBy({ it.second }, { it.first })) {
+            var box = group.first().bounds()
+            for (s in group.drop(1)) box = box.union(s.bounds())
+            val points = group.map { s ->
+                val t0 = s.tAt(0)
+                (0 until s.sampleCount).map { i ->
+                    Triple((s.xAt(i) - box.left).toFloat(), (s.yAt(i) - box.top).toFloat(), (s.tAt(i) - t0).toLong() + i)
+                }
+            }
+            // Height of one written line in the recogniser's terms: the writing's own height.
+            inkRecognizer.recognize(points, box.w.toFloat(), box.h.toFloat()) { text ->
+                if (text != null && controller.replaceInkWithText(pi, group, text, controller.textFace)) {
+                    refreshContent()
+                    view.requestRender()
+                }
+            }
+        }
+    }
+
     // --- xnotes BR: Modo Leitura (estilo Kindle) ---
 
     var readingMode by mutableStateOf(false)
@@ -6870,7 +6932,11 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
 
     override fun updateToolConfig(tool: Tool, config: com.xnotes.core.tools.ToolConfig) {
         controller.setToolConfig(tool, config.copy(rgba = controller.inkColor))
+        toolConfigVersion++
     }
+
+    /** xnotes BR: bumps whenever a tool's settings change, so Compose UI that shows them redraws. */
+    var toolConfigVersion by androidx.compose.runtime.mutableIntStateOf(0)
 
     val recentColors: List<Rgba> get() = settings.recentColors
 

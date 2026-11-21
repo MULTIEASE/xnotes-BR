@@ -1161,7 +1161,7 @@
     <string name="toolbar_size_regular">Normal</string>
     <string name="toolbar_size_comfortable">Confortável</string>
     <!-- xnotes BR -->
-    <string name="pen_buttons_title">Botões laterais da caneta</string>
+    <string name="pen_buttons_title">Vision Pen (caneta da Positivo) – botões</string>
     <string name="pen_buttons_help">Cada botão pode fazer uma coisa enquanto está apertado e outras com um clique ou clique duplo, com a caneta afastada da tela.</string>
     <string name="pen_button_1_lower">Botão 1 (de baixo, perto da ponta)</string>
     <string name="pen_button_2_upper">Botão 2 (de cima)</string>
@@ -1199,7 +1199,7 @@
     <string name="reading_exit">Sair da leitura</string>
     <string name="caption_line_colour">Cor das linhas</string>
     <string name="caption_margin_colour">Cor da margem e dos títulos</string>
-    <string name="pen_screen_open">Configurar os botões da caneta…</string>
+    <string name="pen_screen_open">Configurar a Vision Pen (caneta da Positivo)…</string>
     <string name="pen_screen_subtitle">Cada botão tem três gestos: clique, clique duplo e segurar. Os cliques valem com a caneta afastada da tela.</string>
     <string name="pen_test_title">Testar os botões</string>
     <string name="pen_test_help">Aperte um botão da caneta, afastada da tela, para ver se o app reconhece.</string>
@@ -1209,7 +1209,7 @@
     <string name="pref_auto_shapes">Formas perfeitas: triângulo, quadrado ou círculo fechado fica perfeito ao levantar a caneta</string>
     <string name="nb_paste_image">Colar imagem</string>
     <string name="pref_page_curl">Virar a página como a folha de um caderno (animação)</string>
-    <string name="pen_touch_title">Ajuste fino da escrita</string>
+    <string name="pen_touch_title">Vision Pen – ajuste fino da escrita</string>
     <string name="pen_touch_subtitle">Evita que a tinta comece antes de a ponta da caneta encostar. Teste os ajustes na folha de teste abaixo.</string>
     <string name="pen_min_pressure">Pressão para começar a riscar</string>
     <string name="pen_min_pressure_help">A tinta só começa quando a caneta aperta pelo menos isso. Aumente se o traço começa com a caneta ainda no ar.</string>
@@ -1239,4 +1239,23 @@
     <string name="align_writing_done">Escrita alinhada. Desfazer volta como era.</string>
     <string name="action_radial_menu">Menu radial de ferramentas</string>
     <string name="radial_close">Toque fora para fechar</string>
+    <string name="pen_calib_title">Calibração automática (recomendado)</string>
+    <string name="pen_calib_help">Dois passos rápidos: segure a caneta logo acima da folha sem encostar e depois escreva uma palavra. O app descobre exatamente onde começa o toque.</string>
+    <string name="pen_calib_step_hover">Passo 1 de 2: segure a caneta logo ACIMA da folha de teste, mexendo um pouco, SEM encostar… (3 segundos)</string>
+    <string name="pen_calib_step_write">Passo 2 de 2: agora escreva uma ou duas palavras na folha de teste, do seu jeito normal, e toque em Concluir.</string>
+    <string name="pen_calib_start">Calibrar</string>
+    <string name="pen_calib_finish">Concluir calibração</string>
+    <string name="pen_calib_ok">Calibrado: a tinta só começa quando a ponta encosta e para quando você levanta a caneta entre as palavras. Teste na folha de teste.</string>
+    <string name="pen_calib_no_hover">O tablet não informou a caneta no ar como toque. A pressão foi ajustada pela sua escrita; agora a tinta também para quando você levanta a caneta entre as palavras.</string>
+    <string name="pen_calib_mixed">A caneta no ar e a escrita leve deram pressões parecidas. Escolhi um valor no meio; escreva um pouco mais firme ou aumente a pressão manualmente.</string>
+    <string name="pen_calib_flat">Esta caneta não informa pressão (sempre o mesmo valor), então a pressão não separa tocar de pairar. Coloquei uma espera no começo do traço.</string>
+    <string name="pen_gate_fingers">Aplicar também a toques que o tablet informa como dedo (ligue se o medidor mostrar a caneta como \"dedo\")</string>
+    <string name="nb_record_stop">Parar</string>
+    <string name="nb_ink_to_text">Escrita → texto</string>
+    <string name="nb_radial">Menu radial</string>
+    <string name="ink_to_text_preparing">Preparando o reconhecimento de escrita… (baixa uns 20 MB uma única vez)</string>
+    <string name="ink_to_text_on">Escrita → texto ligado: o que você escrever vira texto digitado. Toque no botão de novo para desligar.</string>
+    <string name="ink_to_text_failed">Não foi possível preparar o reconhecimento de escrita. Conecte à internet uma vez e tente de novo.</string>
+    <string name="other_pens_title">Outras canetas (não é a Vision Pen da Positivo)</string>
+    <string name="other_pens_help">Estas opções são para outras canetas, como a S Pen da Samsung, canetas USI ou a Redmi Smart Pen.</string>
 </resources>

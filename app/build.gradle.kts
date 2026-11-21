@@ -129,6 +129,8 @@ tasks.configureEach {
 }
 
 dependencies {
+    // xnotes BR: handwriting to typed text (Google ML Kit Digital Ink, pt-BR model downloaded once)
+    implementation("com.google.mlkit:digital-ink-recognition:18.1.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
