@@ -48,6 +48,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.xnotes.R
 import com.xnotes.canvas.PenContactFilter
+import com.xnotes.canvas.PressureSplit
 import com.xnotes.settings.Preferences
 import com.xnotes.ui.theme.LocalPalette
 import com.xnotes.ui.theme.toComposeColor
@@ -56,6 +57,9 @@ import kotlin.math.roundToInt
 
 /** One test stroke: its ink points. */
 private class TestStroke { val ink = mutableStateListOf<Offset>() }
+
+/** What the pen wrote, every sample the tablet reported as touching, with its pressure. */
+private class RawStroke { val pts = mutableStateListOf<Pair<Offset, Float>>() }
 
 /**
  * xnotes BR: "Ajuste fino da escrita – Vision Pen". Pressure to start, delay on first contact, an
@@ -75,6 +79,13 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
 
     val strokes = remember { mutableStateListOf<TestStroke>() }
     val held = remember { mutableStateListOf<Offset>() }
+    val raw = remember { mutableStateListOf<RawStroke>() }
+    val contact = remember { mutableListOf<Float>() }
+    var autoAdjust by remember { mutableStateOf(true) }
+    var split by remember { mutableStateOf<PressureSplit.Result?>(null) }
+    // Where the pen is now: 0 away, 1 hovering (not touching), 2 touching lightly (no ink), 3 writing.
+    var where by remember { mutableIntStateOf(0) }
+    var hoverDistance by remember { mutableFloatStateOf(-1f) }
     var pressure by remember { mutableFloatStateOf(0f) }
     var tool by remember { mutableStateOf("") }
     // Calibration: 0 off, 1 hovering, 2 writing.
@@ -132,7 +143,26 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
         strokes.clear(); held.clear()
     }
 
+    fun learnFromWriting() {
+        val r = PressureSplit.of(contact.takeLast(3000)) ?: return
+        split = r
+        if (!autoAdjust || calib != 0) return
+        val t = ((r.threshold * 100).roundToInt() / 100.0).coerceIn(0.0, 0.9)
+        if (t != latest.penMinPressure) update(latest.copy(penMinPressure = t))
+    }
+
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        CaptureDialogPenEvents { e ->
+            when (e.actionMasked) {
+                MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE -> {
+                    where = 1
+                    pressure = e.getPressure(0)
+                    hoverDistance = e.getAxisValue(MotionEvent.AXIS_DISTANCE)
+                    if (calib == 1) hoverP.add(e.getPressure(0))
+                }
+                MotionEvent.ACTION_HOVER_EXIT -> { where = 0; pressure = 0f; hoverDistance = -1f }
+            }
+        }
         Box(Modifier.fillMaxSize().background(palette.bg.toComposeColor()), contentAlignment = Alignment.TopCenter) {
             Column(
                 Modifier.widthIn(max = 1000.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
@@ -172,7 +202,7 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
                             color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold,
                             modifier = Modifier.background(accent, RoundedCornerShape(12.dp)).clickable {
                                 when (calib) {
-                                    0 -> { hoverP.clear(); writeP.clear(); sawFinger = false; verdict = null; strokes.clear(); held.clear(); calib = 1 }
+                                    0 -> { hoverP.clear(); writeP.clear(); sawFinger = false; verdict = null; strokes.clear(); held.clear(); raw.clear(); calib = 1 }
                                     1 -> calib = 0
                                     else -> finishCalibration()
                                 }
@@ -235,15 +265,50 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
                     Text("${(pressure * 100).roundToInt()}% · $tool", color = text, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
 
+                // Where the pen is, read live, and what the sheet learnt from the writing.
+                Column(
+                    Modifier.fillMaxWidth().background(card, RoundedCornerShape(14.dp)).border(1.dp, line, RoundedCornerShape(14.dp)).padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    val (label, colour) = when (where) {
+                        1 -> stringResource(R.string.pen_where_hover) + (if (hoverDistance >= 0f) " · ${stringResource(R.string.pen_where_distance)} ${"%.1f".format(hoverDistance)}" else "") to Color(0xFF1E88E5)
+                        2 -> stringResource(R.string.pen_where_light) to Color(0xFFF9A825)
+                        3 -> stringResource(R.string.pen_where_writing) to Color(0xFF2E7D32)
+                        else -> stringResource(R.string.pen_where_away) to dim
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(14.dp).background(colour, CircleShape))
+                        Text(label, color = text, fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 10.dp))
+                    }
+                    split?.let { r ->
+                        Text(
+                            when {
+                                r.flat -> stringResource(R.string.pen_learn_flat)
+                                r.separated -> stringResource(
+                                    R.string.pen_learn_separated, (r.writing * 100).roundToInt(), (r.light * 100).roundToInt(), (r.threshold * 100).roundToInt(),
+                                )
+                                else -> stringResource(R.string.pen_learn_one, (r.writing * 100).roundToInt(), (r.threshold * 100).roundToInt())
+                            },
+                            color = text, fontSize = 13.sp,
+                        )
+                    } ?: Text(stringResource(R.string.pen_learn_wait), color = dim, fontSize = 13.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = autoAdjust, onCheckedChange = { autoAdjust = it; if (it) learnFromWriting() })
+                        Text(stringResource(R.string.pen_learn_auto), color = text, fontSize = 13.sp)
+                    }
+                }
+
                 // The test sheet, through the same filter the notes use.
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.pen_test_sheet), color = text, fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                     Legend(Color(0xFF1D4ED8), stringResource(R.string.pen_test_ink), text)
                     Box(Modifier.width(14.dp))
-                    Legend(Color(0xFF9AA0A6), stringResource(R.string.pen_test_held), text)
+                    Legend(Color(0xFFB9C2CC), stringResource(R.string.pen_test_raw), text)
+                    Box(Modifier.width(14.dp))
+                    Legend(Color(0xFFE8A0A0), stringResource(R.string.pen_test_held), text)
                     Text(
                         stringResource(R.string.clear), color = accent, fontSize = 14.sp, fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { strokes.clear(); held.clear() }.padding(start = 14.dp, top = 6.dp, bottom = 6.dp),
+                        modifier = Modifier.clickable { strokes.clear(); held.clear(); raw.clear() }.padding(start = 14.dp, top = 6.dp, bottom = 6.dp),
                     )
                 }
                 Canvas(
@@ -254,6 +319,14 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
                         .border(1.dp, line, RoundedCornerShape(14.dp))
                         .pointerInteropFilter { e ->
                             PenSignals.onMotion(e)
+                            when (e.actionMasked) {
+                                MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE -> {
+                                    where = 1; pressure = e.getPressure(0)
+                                    hoverDistance = e.getAxisValue(MotionEvent.AXIS_DISTANCE)
+                                    return@pointerInteropFilter true
+                                }
+                                MotionEvent.ACTION_HOVER_EXIT -> { where = 0; pressure = 0f; return@pointerInteropFilter true }
+                            }
                             pressure = if (e.actionMasked == MotionEvent.ACTION_UP) 0f else e.getPressure(0)
                             val type = e.getToolType(0)
                             tool = when (type) {
@@ -269,6 +342,28 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
                                 bucket.add(e.getPressure(0))
                             }
                             if (calib == 1) return@pointerInteropFilter true // hovering: nothing to draw
+                            // Everything the tablet calls touching is drawn faintly, so the whole
+                            // writing shows; blue on top is what the notes would really ink.
+                            when (e.actionMasked) {
+                                MotionEvent.ACTION_DOWN -> raw.add(RawStroke().also { it.pts.add(Offset(e.x, e.y) to e.getPressure(0)) })
+                                MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> {
+                                    val r = raw.lastOrNull()
+                                    for (h in 0 until e.historySize) {
+                                        val hp = e.getHistoricalPressure(0, h)
+                                        r?.pts?.add(Offset(e.getHistoricalX(0, h), e.getHistoricalY(0, h)) to hp)
+                                        contact.add(hp)
+                                    }
+                                    r?.pts?.add(Offset(e.x, e.y) to e.getPressure(0))
+                                }
+                            }
+                            if (e.actionMasked != MotionEvent.ACTION_UP) contact.add(e.getPressure(0))
+                            val minP = prefs.penMinPressure.toFloat()
+                            where = when {
+                                e.actionMasked == MotionEvent.ACTION_UP || e.actionMasked == MotionEvent.ACTION_CANCEL -> 0
+                                minP > 0f && e.getPressure(0) < minP -> 2
+                                else -> 3
+                            }
+                            if (e.actionMasked == MotionEvent.ACTION_UP) learnFromWriting()
                             if (!filter.feed(e) { false }) {
                                 // Filter off (or not a filtered pointer): draw every sample as it comes.
                                 when (e.actionMasked) {
@@ -288,7 +383,15 @@ fun PenTouchScreen(prefs: Preferences, update: (Preferences) -> Unit, onClose: (
                         drawLine(Color(0xFFD5E2EF), Offset(0f, y), Offset(size.width, y), strokeWidth = 2f)
                         y += 56f
                     }
-                    for (p in held) drawCircle(Color(0xFF9AA0A6), 2.5f, p)
+                    for (r in raw) {
+                        for (i in 1 until r.pts.size) {
+                            val (a, pa) = r.pts[i - 1]
+                            val (b, pb) = r.pts[i]
+                            val w = 2f + 5f * ((pa + pb) / 2f).coerceIn(0f, 1f)
+                            drawLine(Color(0xFFB9C2CC), a, b, strokeWidth = w, cap = StrokeCap.Round)
+                        }
+                    }
+                    for (p in held) drawCircle(Color(0xFFE8A0A0), 2f, p)
                     for (s in strokes) {
                         if (s.ink.size == 1) drawCircle(Color(0xFF1D4ED8), 3f, s.ink[0])
                         for (i in 1 until s.ink.size) drawLine(Color(0xFF1D4ED8), s.ink[i - 1], s.ink[i], strokeWidth = 4f, cap = StrokeCap.Round)

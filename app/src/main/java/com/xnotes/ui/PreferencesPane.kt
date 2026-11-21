@@ -284,6 +284,7 @@ fun PreferencesPane(
             }
             CheckRow(stringResource(R.string.pref_detect_shapes), prefs.detectShapes) { update(prefs.copy(detectShapes = it)) }
             CheckRow(stringResource(R.string.pref_auto_shapes), prefs.autoShapes) { update(prefs.copy(autoShapes = it)) }
+            CheckRow(stringResource(R.string.pref_scribble_erase), prefs.scribbleErase) { update(prefs.copy(scribbleErase = it)) }
             val tapOptions = tapGestureOptions.map { (id, res) -> id to stringResource(res) }
             // xnotes BR: the pen's buttons have their own screen.
             FieldLabel(stringResource(R.string.pen_buttons_title))

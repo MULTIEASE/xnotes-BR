@@ -181,6 +181,18 @@ interface SelectionMenuHost : SwatchHost {
 
     /** xnotes BR: straighten the selected handwriting: level each line and even out its baseline. */
     fun alignSelectedWriting() {}
+
+    /** xnotes BR: whether the selection holds handwriting that can become typed text. */
+    fun canInkToTextSelection(): Boolean = false
+
+    /** xnotes BR: turn the selected handwriting into typed text, aligned on its line. */
+    fun convertSelectionToText() {}
+
+    /** xnotes BR: whether the selection is one text box the keyboard can edit. */
+    fun canEditSelectedText(): Boolean = false
+
+    /** xnotes BR: open the keyboard on that text box. */
+    fun editSelectedText() {}
 }
 
 /**
@@ -206,11 +218,17 @@ fun SelectionMenu(
 
     val audio = host.selectedAudio()
     val crops = host.canCropSelection()
+    val inkText = host.canInkToTextSelection()
+    val editsText = host.canEditSelectedText()
     val barHeightPx = with(density) { 48.dp.toPx() }
-    val barWidthPx = with(density) { ((6 + (if (audio != null) 1 else 0) + (if (crops) 1 else 0)) * 46).dp.toPx() }
+    val barWidthPx = with(density) {
+        ((6 + (if (audio != null) 1 else 0) + (if (crops) 1 else 0)) * 46 + (if (inkText) 92 else 0) + (if (editsText) 70 else 0)).dp.toPx()
+    }
     val gap = with(density) { 10.dp.toPx() }
-    val centerX = ((rect.left + rect.right) / 2.0).toFloat()
-    val xPx = (centerX - barWidthPx / 2f).coerceAtLeast(with(density) { 8.dp.toPx() })
+    val screenW = with(density) { androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val centerX = ((rect.left.coerceAtLeast(0.0) + rect.right.coerceAtMost(screenW.toDouble())) / 2.0).toFloat()
+    val xPx = (centerX - barWidthPx / 2f).coerceAtMost(screenW - barWidthPx - with(density) { 8.dp.toPx() })
+        .coerceAtLeast(with(density) { 8.dp.toPx() })
     val barAbove = rect.top.toFloat() - barHeightPx - gap > 0f
     val yPx = if (barAbove) {
         rect.top.toFloat() - barHeightPx - gap
@@ -233,6 +251,8 @@ fun SelectionMenu(
                 ActionIcon(if (playing) XnotesIcons.pause else XnotesIcons.play, stringResource(if (playing) R.string.audio_pause else R.string.audio_play)) { host.playSelectedAudio() }
             }
             if (crops) ActionIcon(XnotesIcons.crop, stringResource(R.string.crop)) { host.startCrop() }
+            if (editsText) TextAction(stringResource(R.string.sel_edit_text), palette.text.toComposeColor()) { host.editSelectedText() }
+            if (inkText) TextAction(stringResource(R.string.sel_ink_to_text), palette.accent.toComposeColor()) { host.convertSelectionToText() }
             ActionIcon(XnotesIcons.trash, stringResource(R.string.delete), shortcut = Keys.DELETE) { host.deleteSelection() }
             ActionIcon(XnotesIcons.cut, stringResource(R.string.cut)) { host.cutSelection() }
             ActionIcon(XnotesIcons.copy, stringResource(R.string.copy)) { host.copySelection(); host.dismissSelectionMenu() }
@@ -1049,5 +1069,17 @@ fun FlowTableMenu(editor: Editor) {
             ActionIcon(Icons.Outlined.TableChart, stringResource(R.string.table_style)) { editor.openTableStyle(table) }
             ActionIcon(Icons.Outlined.GridOff, stringResource(R.string.delete_table)) { editor.tableDelete(table) }
         }
+    }
+}
+
+
+/** xnotes BR: a worded button in the selection bar. */
+@Composable
+private fun TextAction(label: String, colour: androidx.compose.ui.graphics.Color, onClick: () -> Unit) {
+    Box(
+        Modifier.height(48.dp).clickable(onClick = onClick).padding(horizontal = 12.dp),
+        contentAlignment = androidx.compose.ui.Alignment.Center,
+    ) {
+        Text(label, color = colour, fontSize = 14.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, maxLines = 1)
     }
 }

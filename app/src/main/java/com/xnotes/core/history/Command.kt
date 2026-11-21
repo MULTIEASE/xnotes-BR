@@ -569,3 +569,24 @@ private fun <T> MutableList<T>.replaceWith(items: List<T>) {
     clear()
     addAll(items)
 }
+
+/** xnotes BR: a text box's words and wrap width changed together (handwriting joined to a line, words erased). */
+class ReviseText(
+    private val item: TextItem,
+    private val oldText: String,
+    private val newText: String,
+    private val oldWidth: Double,
+    private val newWidth: Double,
+) : Command {
+    override fun redo() {
+        item.text = newText
+        item.width = newWidth
+    }
+
+    override fun undo() {
+        item.text = oldText
+        item.width = oldWidth
+    }
+
+    override fun touched(locate: (CanvasItem) -> Page?) = pagedItems(listOf(item), locate)
+}

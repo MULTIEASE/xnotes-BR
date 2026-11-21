@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -69,6 +70,7 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
     var widthsOpen by remember { mutableStateOf(false) }
     var fluoOpen by remember { mutableStateOf(false) }
     var coloursOpen by remember { mutableStateOf(false) }
+    var inkOptsOpen by remember { mutableStateOf(false) }
     @Suppress("UNUSED_VARIABLE") val configVersion = editor.toolConfigVersion // recompose when a pen width changes
     val penWidth = editor.toolConfig(Tool.PEN).baseWidth
     val hlColour = editor.toolConfig(Tool.HIGHLIGHTER).colorOverride ?: NOTEBOOK_FLUO.first()
@@ -161,8 +163,25 @@ fun NotebookBar(editor: Editor, onRecord: () -> Unit, modifier: Modifier = Modif
                 stringResource(if (recordingNow) R.string.nb_record_stop else R.string.nb_record), recordingNow, ink, line, accent,
                 dot = Color(0xFFD93025),
             ) { if (recordingNow) AudioRecording.stop() else onRecord() }
-            // Handwriting to typed text.
-            SimpleBox(stringResource(R.string.nb_ink_to_text), editor.inkToText, ink, line, accent) { editor.toggleInkToText() }
+            // Handwriting to typed text: tap = on/off (or convert the selection), double tap = options.
+            Box {
+                @Suppress("UNUSED_VARIABLE") val optsVersion = editor.inkOptsVersion
+                val selectMode = editor.inkTextMode == "select"
+                ToolBox(
+                    selected = editor.inkToText, line = line, accent = accent,
+                    onClick = { editor.toggleInkToText() },
+                    onDouble = { inkOptsOpen = true },
+                ) {
+                    BoxLabel(stringResource(R.string.nb_ink_to_text), ink, editor.inkToText)
+                    BoxLabel(
+                        if (selectMode) stringResource(R.string.ink_mode_select_short) else stringResource(R.string.ink_mode_auto_short),
+                        accent, false,
+                    )
+                }
+                DropdownMenu(expanded = inkOptsOpen, onDismissRequest = { inkOptsOpen = false }) {
+                    InkTextOptions(editor, ink, line, accent)
+                }
+            }
             // Radial menu of tools.
             SimpleBox(stringResource(R.string.nb_radial), editor.radialOpen, ink, line, accent) { editor.radialOpen = !editor.radialOpen }
             SimpleBox(
@@ -250,4 +269,84 @@ private fun Swatch(colour: Color, selected: Boolean, accent: Color, line: Color,
             .background(colour, CircleShape)
             .clickable(onClick = onClick),
     )
+}
+
+
+/** xnotes BR: the options of "Escrita → texto": when to convert, how long to wait, font and size. */
+@Composable
+private fun InkTextOptions(editor: Editor, ink: Color, line: Color, accent: Color) {
+    @Suppress("UNUSED_VARIABLE") val optsVersion = editor.inkOptsVersion
+    val mode = editor.inkTextMode
+    val prefs = editor.preferences
+    Column(Modifier.padding(14.dp).width(420.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.ink_opts_title), color = ink, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.ink_opts_mode), color = ink, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Chip(stringResource(R.string.ink_opts_auto), mode == "auto", ink, line, accent, Modifier.weight(1f)) { editor.setInkTextOptions(mode = "auto") }
+            Chip(stringResource(R.string.ink_opts_select), mode == "select", ink, line, accent, Modifier.weight(1f)) { editor.setInkTextOptions(mode = "select") }
+        }
+        if (mode == "auto") {
+            Text(stringResource(R.string.ink_opts_delay), color = ink, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf(1000, 2000, 3000, 5000, 8000).forEach { ms ->
+                    Chip("${ms / 1000} s", prefs.inkTextDelayMs == ms, ink, line, accent, Modifier.weight(1f)) { editor.setInkTextOptions(delayMs = ms) }
+                }
+            }
+        } else {
+            Text(stringResource(R.string.ink_opts_select_help), color = ink.copy(alpha = 0.7f), fontSize = 12.sp)
+        }
+        Text(stringResource(R.string.ink_opts_size), color = ink, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Chip(stringResource(R.string.ink_opts_size_auto), prefs.inkTextSize == 0, ink, line, accent, Modifier.weight(1.6f)) { editor.setInkTextOptions(size = 0) }
+            listOf(11, 12, 14, 16, 20, 24).forEach { pt ->
+                Chip("$pt", prefs.inkTextSize == pt, ink, line, accent, Modifier.weight(1f)) { editor.setInkTextOptions(size = pt) }
+            }
+        }
+        Text(stringResource(R.string.ink_opts_font) + ": " + editor.inkTextFaceLabel(), color = ink, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        val current = editor.inkTextFace()
+        Column(
+            Modifier.height(220.dp).border(1.dp, line, RoundedCornerShape(10.dp))
+                .verticalScroll(rememberScrollState()).padding(4.dp),
+        ) {
+            editor.inkFontChoices().forEach { c ->
+                val on = c.face == current
+                Text(
+                    "Edson da Silva Flores — ${c.label}",
+                    color = if (on) accent else ink,
+                    fontSize = 16.sp,
+                    fontFamily = rememberFontFamily(c.face),
+                    fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.fillMaxWidth()
+                        .background(if (on) accent.copy(alpha = 0.12f) else Color.Transparent, RoundedCornerShape(8.dp))
+                        .clickable { editor.setInkTextOptions(face = c.face.id) }
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                )
+            }
+        }
+        Text(stringResource(R.string.ink_opts_hint), color = ink.copy(alpha = 0.7f), fontSize = 12.sp)
+    }
+}
+
+@Composable
+private fun rememberFontFamily(face: com.xnotes.core.pal.FontFace): androidx.compose.ui.text.font.FontFamily =
+    remember(face.id) {
+        runCatching {
+            androidx.compose.ui.text.font.FontFamily(
+                com.xnotes.platform.FontCatalog.resolve(face, bold = false, italic = false).typeface,
+            )
+        }.getOrDefault(androidx.compose.ui.text.font.FontFamily.Default)
+    }
+
+@Composable
+private fun Chip(label: String, on: Boolean, ink: Color, line: Color, accent: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(
+        modifier
+            .background(if (on) accent.copy(alpha = 0.14f) else Color.Transparent, RoundedCornerShape(10.dp))
+            .border(BorderStroke(if (on) 2.dp else 1.dp, if (on) accent else line), RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 9.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, color = ink, fontSize = 12.sp, textAlign = TextAlign.Center, fontWeight = if (on) FontWeight.Bold else FontWeight.Normal, lineHeight = 14.sp)
+    }
 }

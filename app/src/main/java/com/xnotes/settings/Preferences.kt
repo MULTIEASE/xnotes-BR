@@ -72,6 +72,16 @@ data class Preferences(
     val penGateFingers: Boolean = false,
     /** xnotes BR: size of the Modo Caderno bar: "small", "medium" or "large". */
     val notebookBarSize: String = "medium",
+    /** xnotes BR: handwriting to text, "auto" (converts a moment after the pen stops) or "select" (on demand). */
+    val inkTextMode: String = "auto",
+    /** xnotes BR: how long after the pen stops the automatic conversion waits, in ms. */
+    val inkTextDelayMs: Int = 2000,
+    /** xnotes BR: font of the converted text ("" = the text tool's font). */
+    val inkTextFace: String = "",
+    /** xnotes BR: size of the converted text in points (0 = sized to the handwriting). */
+    val inkTextSize: Int = 0,
+    /** xnotes BR: scribbling back and forth over writing erases it, with any pen. */
+    val scribbleErase: Boolean = true,
     /** Whether the side-button tool also activates during hover (no contact needed); eraser/pan only. */
     val penButtonHover: Boolean = false,
     /** Action mapped to a clean two-finger tap; "none" (default) disables it. */
@@ -188,6 +198,11 @@ data class Preferences(
         .put("pen_start_delay_ms", penStartDelayMs)
         .put("pen_gate_fingers", penGateFingers)
         .put("notebook_bar_size", notebookBarSize)
+        .put("ink_text_mode", inkTextMode)
+        .put("ink_text_delay_ms", inkTextDelayMs)
+        .put("ink_text_face", inkTextFace)
+        .put("ink_text_size", inkTextSize)
+        .put("br_scribble_erase", scribbleErase)
         .put("pen_button_hover", penButtonHover)
         .put("two_finger_tap", twoFingerTap)
         .put("three_finger_tap", threeFingerTap)
@@ -343,6 +358,11 @@ data class Preferences(
                 penStartDelayMs = o.optInt("pen_start_delay_ms", 0).coerceIn(0, 150),
                 penGateFingers = o.optBoolean("pen_gate_fingers", false),
                 notebookBarSize = o.optString("notebook_bar_size", "medium").takeIf { it in setOf("small", "medium", "large") } ?: "medium",
+                inkTextMode = o.optString("ink_text_mode", "auto").takeIf { it in setOf("auto", "select") } ?: "auto",
+                inkTextDelayMs = o.optInt("ink_text_delay_ms", 2000).coerceIn(500, 10000),
+                inkTextFace = o.optString("ink_text_face", ""),
+                inkTextSize = o.optInt("ink_text_size", 0).coerceIn(0, 48),
+                scribbleErase = o.optBoolean("br_scribble_erase", true),
                 penButtonHover = o.optBoolean("pen_button_hover", false),
                 twoFingerTap = tapAction("two_finger_tap"),
                 threeFingerTap = tapAction("three_finger_tap"),

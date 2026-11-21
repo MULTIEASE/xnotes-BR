@@ -64,6 +64,10 @@ import com.xnotes.core.model.TapePattern
 import com.xnotes.core.tape.TapeGeometry
 import com.xnotes.core.model.TextHandle
 import com.xnotes.core.model.TextItem
+import com.xnotes.core.model.PagePattern
+import com.xnotes.core.model.PageStyle
+import com.xnotes.core.model.resolvedSpacing
+import com.xnotes.core.history.ReviseText
 import com.xnotes.core.model.TextMarkup
 import com.xnotes.core.model.TextStyle
 import com.xnotes.core.pal.FontFace
@@ -524,6 +528,7 @@ class InteractionController(
     // LONG-PRESS GRAB
     private val handler by lazy { Handler(Looper.getMainLooper()) } // lazy: see [choreographer]
     private var longPressRunnable: Runnable? = null
+    private var longPressSlop = LONG_PRESS_SLOP
     private var longPressStart = Pt.ZERO
     private var longPressContent = Pt.ZERO
     private var longPressCandidate: Selected? = null
@@ -610,6 +615,11 @@ class InteractionController(
     /** The selected items, in the order they were picked. */
     fun selectedItems(): List<CanvasItem> = selection.map { it.item }
 
+    /** xnotes BR: the selected handwriting, by page. */
+    fun selectedStrokesByPage(): Map<Int, List<Stroke>> =
+        selection.filter { it.item is Stroke && (it.item as Stroke).tool != Tool.HIGHLIGHTER }
+            .groupBy({ it.pageIndex }, { it.item as Stroke })
+
     fun configFor(t: Tool): ToolConfig = toolConfigs[t] ?: ToolDefaults.configFor(t)
 
     fun setToolConfig(t: Tool, config: ToolConfig) {
@@ -675,35 +685,237 @@ class InteractionController(
 
     // --- touch entry point ---
 
+    /** xnotes BR: scribbling over writing erases it with any pen, whatever the eraser's own setting. */
+    var scribbleAlways = true
+
     /** xnotes BR: told of each pen stroke as it is filed (for handwriting to text). */
     var onInkFiled: ((Stroke, Int) -> Unit)? = null
 
+    /** xnotes BR: right edge of the handwriting each typed line last took in, so the next word knows its gap. */
+    private val inkTextRight = java.util.WeakHashMap<TextItem, Double>()
+
+    /** xnotes BR: split handwriting into written lines (rows), top to bottom, each left to right. */
+    fun inkRows(strokes: List<Stroke>): List<List<Stroke>> {
+        if (strokes.isEmpty()) return emptyList()
+        val boxes = strokes.associateWith { it.bounds() }
+        val tall = boxes.values.map { it.h }.filter { it > 0.0 }.sorted()
+        val medH = (tall.getOrNull(tall.size / 2) ?: 20.0).coerceAtLeast(4.0)
+        val rows = mutableListOf<MutableList<Stroke>>()
+        val centres = mutableListOf<Double>()
+        for (s in strokes.sortedBy { boxes.getValue(it).centerY }) {
+            val cy = boxes.getValue(s).centerY
+            val i = centres.indexOfFirst { kotlin.math.abs(it - cy) <= medH * 0.8 }
+            if (i >= 0) {
+                rows[i].add(s)
+                centres[i] = rows[i].map { boxes.getValue(it).centerY }.average()
+            } else {
+                rows.add(mutableListOf(s)); centres.add(cy)
+            }
+        }
+        return rows.sortedBy { r -> r.minOf { boxes.getValue(it).top } }
+            .map { r -> r.sortedBy { boxes.getValue(it).left } }
+    }
+
+    /** xnotes BR: the text of the typed line the handwriting at [strokes] would join, for the recogniser's context. */
+    fun inkJoinContext(pageIndex: Int, strokes: List<Stroke>): String {
+        val page = state.document.pages.getOrNull(pageIndex) ?: return ""
+        val g = inkGeometry(page, strokes) ?: return ""
+        return lineToJoin(page, g)?.text?.takeLast(20) ?: ""
+    }
+
+    private class InkGeometry(val box: Rect, val baseline: Double, val sizePx: Double)
+
+    private fun inkGeometry(page: Page, strokes: List<Stroke>): InkGeometry? {
+        if (strokes.isEmpty()) return null
+        var box = strokes.first().bounds()
+        for (s in strokes.drop(1)) box = box.union(s.bounds())
+        // Leave out dots and accents (small) when reading the line: what is left sits on the baseline.
+        val heights = strokes.map { it.bounds().h }.sorted()
+        val bodyH = heights[heights.size / 2].coerceAtLeast(box.h * 0.35).coerceAtLeast(4.0)
+        val body = strokes.filter { it.bounds().h >= bodyH * 0.45 }.ifEmpty { strokes }
+        // Letters with a tail (g, j, p, q, y) reach below the line; the lower-middle bottom is the baseline.
+        val bottoms = body.map { it.bounds().bottom }.sorted()
+        var baseline = bottoms[((bottoms.size - 1) * 0.35).toInt()]
+        var sizePx = (bodyH / 0.62).coerceIn(14.0, 90.0)
+        // On ruled paper the text sits on the printed line the writing was on.
+        val template = state.effectiveTemplate(page)
+        if (template == PagePattern.LINES.id || template == PagePattern.GRID.id) {
+            val sp = page.resolvedSpacing(state.document) ?: PageStyle.DEFAULT_SPACING
+            if (sp >= 8.0) {
+                val line = kotlin.math.round(baseline / sp) * sp
+                if (kotlin.math.abs(line - baseline) <= sp * 0.45) baseline = line
+                sizePx = sizePx.coerceAtMost(sp * 0.72)
+            }
+        }
+        return InkGeometry(box, baseline, sizePx)
+    }
+
+    /** First baseline of [item], in page space. */
+    private fun textBaseline(item: TextItem): Double = item.pos.y + textMeasurer.metrics(item.font).ascent
+
+    /** Width the words of [item] take on one line, in page space. */
+    private fun textRunWidth(item: TextItem): Double = textRunWidth(item.text, item.font)
+
+    private fun textRunWidth(text: String, font: com.xnotes.core.pal.FontSpec): Double =
+        textMeasurer.advances(text, font).sum()
+
+    private fun isOneLine(item: TextItem): Boolean = item.contentHeight() <= textMeasurer.lineHeight(item.font) * 1.4
+
+    /** The typed line on [page] that handwriting at [g] continues: same baseline, ending to its left. */
+    private fun lineToJoin(page: Page, g: InkGeometry): TextItem? =
+        page.items.asSequence().filterIsInstance<TextItem>()
+            .filter { !it.locked && it.text.isNotBlank() && isOneLine(it) && it !== editingText }
+            .filter { kotlin.math.abs(textBaseline(it) - g.baseline) <= maxOf(textMeasurer.lineHeight(it.font), g.sizePx) * 0.55 }
+            .filter { it.pos.x <= g.box.left + g.sizePx * 0.5 }
+            .filter { g.box.left - (it.pos.x + textRunWidth(it)) <= page.width * 0.5 }
+            .maxByOrNull { it.pos.x + textRunWidth(it) }
+
+    /** Fit [item]'s wrap width to its words, staying on the page. */
+    private fun fittedWidth(page: Page, item: TextItem, text: String): Double {
+        val run = textRunWidth(text, item.font) + textMeasurer.lineHeight(item.font) * 0.4
+        val room = (page.width - item.pos.x - 8.0).coerceAtLeast(60.0)
+        return run.coerceIn(20.0, room)
+    }
+
     /**
-     * xnotes BR: replace handwritten [strokes] on page [pageIndex] with typed [text] in [face],
-     * sized to the writing and sitting on its baseline, as one undo step. False when the strokes
-     * are gone (erased or undone meanwhile).
+     * xnotes BR: replace handwritten [strokes] (one written line) on page [pageIndex] with typed
+     * [text]. The words continue the typed line they follow on the same baseline, one space apart,
+     * like typing; otherwise they start a new line where the writing began, sitting on its line.
+     * [fixedPt] forces a font size (null sizes it to the writing). One undo step. False when the
+     * strokes are gone (erased or undone meanwhile).
      */
-    fun replaceInkWithText(pageIndex: Int, strokes: List<Stroke>, text: String, face: com.xnotes.core.pal.FontFace): Boolean {
+    fun replaceInkWithText(
+        pageIndex: Int, strokes: List<Stroke>, text: String, face: com.xnotes.core.pal.FontFace, fixedPt: Double? = null,
+    ): Boolean {
         val page = state.document.pages.getOrNull(pageIndex) ?: return false
         val present = strokes.filter { s -> page.items.any { it === s } }
-        if (present.isEmpty()) return false
-        var box = present.first().bounds()
-        for (s in present.drop(1)) box = box.union(s.bounds())
-        val ptPerPx = 72.0 / state.document.dpi
-        // Handwriting runs about 1.4 times the height of its letters' body; type a little smaller.
-        val sizePt = (box.h * ptPerPx * 0.62).coerceIn(9.0, 40.0)
-        val sizePx = sizePt / ptPerPx
-        val item = TextItem(Pt(box.left, box.bottom - sizePx * 1.25), 0.0, 0.0, text, inkColor, sizePt, face, textMeasurer)
-        val measured = textMeasurer.measure(text, item.font, 100000.0, TextItem.FLAGS).w
-        item.width = maxOf(measured + sizePx * 0.6, box.w * 0.6)
-        val dirty = present.fold(box) { acc, s -> acc.union(s.paintBounds()) }
+        if (present.isEmpty() || text.isBlank()) return false
+        val g = inkGeometry(page, present) ?: return false
+        val words = text.trim().replace(Regex("\\s+"), " ")
+        val dirty = present.fold(g.box) { acc, s -> acc.union(s.paintBounds()) }
+        val target = lineToJoin(page, g)
+        val cmds = ArrayList<Command>()
         for (s in present) { val i = page.items.indexOfFirst { it === s }; if (i >= 0) page.items.removeAt(i) }
-        page.items.add(item)
-        history.push(CompositeCommand(listOf(EraseItems(present.map { page to it }), AddItem(page, item))))
-        if (!state.repairRegion(page, dirty.union(item.bounds()).outset(REPAIR_PAD))) state.invalidatePage(page)
+        cmds += EraseItems(present.map { page to it })
+        val touched: TextItem
+        val before: Rect
+        if (target != null) {
+            before = target.bounds()
+            val end = inkTextRight[target] ?: (target.pos.x + textRunWidth(target))
+            // Written almost touching the last word: the same word, carried on (no space).
+            val glued = g.box.left - end < g.sizePx * 0.18 && !target.text.endsWith(" ")
+            val newText = target.text.trimEnd() + (if (glued) "" else " ") + words
+            val oldText = target.text
+            val oldWidth = target.width
+            target.text = newText
+            target.width = fittedWidth(page, target, newText)
+            cmds += ReviseText(target, oldText, newText, oldWidth, target.width)
+            inkTextRight[target] = maxOf(end, g.box.right)
+            touched = target
+        } else {
+            val ptPerPx = 72.0 / state.document.dpi
+            val sizePt = (fixedPt ?: (g.sizePx * ptPerPx)).coerceIn(8.0, 48.0)
+            val item = TextItem(Pt(g.box.left, 0.0), 100.0, 0.0, words, inkColor, sizePt, face, textMeasurer)
+            item.pos = Pt(g.box.left, g.baseline - textMeasurer.metrics(item.font).ascent)
+            item.width = fittedWidth(page, item, words)
+            page.items.add(item)
+            cmds += AddItem(page, item)
+            inkTextRight[item] = g.box.right
+            touched = item
+            before = item.bounds()
+        }
+        history.push(CompositeCommand(cmds))
+        if (!state.repairRegion(page, dirty.union(before).union(touched.bounds()).outset(REPAIR_PAD))) state.invalidatePage(page)
         state.document.dirty = true
         onContentChanged()
         requestRender()
+        return true
+    }
+
+    // --- xnotes BR: words of typed text, for the eraser and the scribble ---
+
+    /** The words of [item] with their boxes in page space; a box that wraps counts as one piece. */
+    private fun textWords(item: TextItem): List<Pair<IntRange, Rect>> {
+        val text = item.text
+        if (text.isBlank()) return emptyList()
+        val b = item.bounds()
+        if (!isOneLine(item)) return listOf(text.indices to b)
+        val adv = textMeasurer.advances(text, item.font)
+        val out = ArrayList<Pair<IntRange, Rect>>()
+        var x = item.pos.x
+        var start = -1
+        var startX = 0.0
+        for (i in text.indices) {
+            val w = adv.getOrElse(i) { 0.0 }
+            if (!text[i].isWhitespace()) {
+                if (start < 0) { start = i; startX = x }
+            } else if (start >= 0) {
+                out += (start until i) to Rect(startX, b.top, x - startX, b.h); start = -1
+            }
+            x += w
+        }
+        if (start >= 0) out += (start until text.length) to Rect(startX, b.top, x - startX, b.h)
+        return out
+    }
+
+    /** [text] without the characters in [cut], spaces tidied. */
+    private fun withoutWords(text: String, cut: List<IntRange>): String {
+        val sb = StringBuilder()
+        for (i in text.indices) if (cut.none { i in it }) sb.append(text[i])
+        return sb.toString().replace(Regex(" {2,}"), " ").trim()
+    }
+
+    /** Text boxes the eraser cut words out of in this drag: the box, its text and width before. */
+    private val eraseTextBefore = LinkedHashMap<TextItem, Pair<String, Double>>()
+    private val eraseTextRemoved = ArrayList<Pair<Page, TextItem>>()
+
+    /** The eraser circle takes the words of typed text it touches; a box left empty goes. */
+    private fun eraseTextFromPage(page: Page, cx: Double, cy: Double, radius: Double): Rect? {
+        var dirty: Rect? = null
+        val hits = page.items.filterIsInstance<TextItem>().filter { !it.locked && it !== editingText && it.bounds().distanceTo(Pt(cx, cy)) <= radius }
+        for (t in hits) {
+            val cut = textWords(t).filter { it.second.distanceTo(Pt(cx, cy)) <= radius }.map { it.first }
+            if (cut.isEmpty()) continue
+            val b = t.bounds()
+            if (t !in eraseTextBefore) eraseTextBefore[t] = t.text to t.width
+            val left = withoutWords(t.text, cut)
+            if (left.isBlank()) {
+                page.items.remove(t)
+                eraseTextRemoved += page to t
+            } else {
+                t.text = left
+                if (isOneLine(t)) t.width = fittedWidth(page, t, left)
+            }
+            dirty = (dirty?.union(b) ?: b).union(t.bounds())
+        }
+        return dirty
+    }
+
+    /** The undo steps for the words the eraser took in this drag. */
+    private fun eraseTextCommands(): List<Command> {
+        val cmds = ArrayList<Command>()
+        for ((t, old) in eraseTextBefore) {
+            val removed = eraseTextRemoved.any { it.second === t }
+            // A box taken whole goes back with its words: restore the words, then remove it again.
+            val nowText = if (removed) old.first else t.text
+            val nowWidth = if (removed) old.second else t.width
+            if (removed) { t.text = old.first; t.width = old.second }
+            if (nowText != old.first || nowWidth != old.second) cmds += ReviseText(t, old.first, nowText, old.second, nowWidth)
+        }
+        if (eraseTextRemoved.isNotEmpty()) cmds += EraseItems(eraseTextRemoved.toList())
+        eraseTextBefore.clear()
+        eraseTextRemoved.clear()
+        return cmds
+    }
+
+    /** xnotes BR: open the keyboard on the one selected text box, to add or take out words. */
+    fun editSelectedText(): Boolean {
+        val sel = selection.singleOrNull() ?: return false
+        val item = sel.item as? TextItem ?: return false
+        if (item.locked) return false
+        val pi = sel.pageIndex
+        clearSelection()
+        startEditing(item, pi, isNew = false)
         return true
     }
 
@@ -1675,7 +1887,7 @@ class InteractionController(
      */
     private fun scribbleErase(stroke: Stroke, pageIndex: Int): Boolean {
         val eraser = configFor(Tool.ERASER)
-        if (!eraser.scribbleErase || !stroke.tool.isStroke || stroke.tool == Tool.HIGHLIGHTER) return false
+        if (!(eraser.scribbleErase || scribbleAlways) || !stroke.tool.isStroke || stroke.tool == Tool.HIGHLIGHTER) return false
         if (crossedSegments.isNotEmpty()) return false // it ran across a page edge
         val page = state.document.pages.getOrNull(pageIndex) ?: return false
         val dpPerUnit = state.zoom / state.devicePxPerDp
@@ -1695,9 +1907,36 @@ class InteractionController(
                 else -> false
             }
         }
-        if (taken.isEmpty()) return false
+        // xnotes BR: typed words the scribble runs back and forth over go too.
+        val textCuts = LinkedHashMap<TextItem, List<IntRange>>()
+        for (t in page.items.filterIsInstance<TextItem>()) {
+            if (t.locked || t === editingText || !t.bounds().intersects(reach)) continue
+            val cut = textWords(t).filter { (_, r) ->
+                val rr = r.outset(radius)
+                (0 until passes.count).count { k -> (passes.turns[k] until passes.turns[k + 1]).any { rr.contains(passes.points[it]) } } >= 3
+            }.map { it.first }
+            if (cut.isNotEmpty()) textCuts[t] = cut
+        }
+        if (taken.isEmpty() && textCuts.isEmpty()) return false
         simplifyForCommit(stroke)
-        val items = taken.filterIsInstance<CanvasItem>().sortedBy { item -> page.items.indexOfFirst { it === item } }
+        val textCmds = ArrayList<Command>()
+        val textGone = ArrayList<CanvasItem>()
+        var textDirty: Rect? = null
+        for ((t, cut) in textCuts) {
+            val b = t.bounds()
+            val left = withoutWords(t.text, cut)
+            if (left.isBlank()) {
+                page.items.remove(t); textGone += t
+            } else {
+                val oldText = t.text; val oldWidth = t.width
+                t.text = left
+                if (isOneLine(t)) t.width = fittedWidth(page, t, left)
+                textCmds += ReviseText(t, oldText, left, oldWidth, t.width)
+            }
+            textDirty = (textDirty?.union(b) ?: b).union(t.bounds())
+        }
+        textDirty?.let { if (!state.repairRegion(page, it.outset(REPAIR_PAD))) state.invalidatePage(page) }
+        val items = taken.filterIsInstance<CanvasItem>().sortedBy { item -> page.items.indexOfFirst { it === item } } + textGone
         var dirty: Rect? = null
         for (item in items) {
             page.items.remove(item)
@@ -1707,6 +1946,7 @@ class InteractionController(
         dirty?.let { if (!state.repairRegion(page, it.outset(REPAIR_PAD))) state.invalidatePage(page) }
         // The scribble rides with the erase, so undoing it comes back on top of the ink, as drawn.
         val cmds = ArrayList<Command>()
+        cmds += textCmds
         cmds += EraseItems(items.map { page to it } + (page to stroke))
         val marks = taken.filterIsInstance<TextMarkup>()
         for (m in marks) cmds += RemoveMarkup(page, m).also { it.redo() }
@@ -1765,6 +2005,11 @@ class InteractionController(
                 changed = true
             }
             if (eraseMarkupsFromPage(page, cx, cy, radius)) changed = true
+            // xnotes BR: typed text (converted handwriting, dictation) is erased word by word.
+            eraseTextFromPage(page, cx, cy, radius)?.let { d ->
+                if (!state.repairRegion(page, d.outset(REPAIR_PAD))) state.invalidatePage(page)
+                changed = true
+            }
         }
         if (changed) onContentChanged()
         requestRender()
@@ -1870,6 +2115,7 @@ class InteractionController(
             cmds += EraseItems(eraseRemovals.toList())
         }
         cmds += eraseMarkups
+        cmds += eraseTextCommands()
         if (cmds.isNotEmpty()) {
             history.push(cmds.singleOrNull() ?: CompositeCommand(cmds))
             state.document.dirty = true
@@ -3525,6 +3771,13 @@ class InteractionController(
         val pi = state.pageIndexAtContent(content) ?: return
         val local = state.toPageSpace(pi, content)
         val reach = OUTLINE_GRAB / state.zoom
+        // xnotes BR: a double tap on a text box types into it (add or take out words).
+        val textHit = state.document.pages[pi].items.lastOrNull { it is TextItem && !it.locked && it.contains(local) } as? TextItem
+        if (textHit != null) {
+            clearSelection()
+            startEditing(textHit, pi, isNew = false)
+            return
+        }
         val shape = state.document.pages[pi].items.lastOrNull { !it.locked && labelTargetHit(it, local, reach) } as? Labelled ?: return
         if (shape in selectedBefore) return
         startLabelEdit(shape, pi)
@@ -3573,6 +3826,8 @@ class InteractionController(
         // moved, resized or deleted without reaching for a finger. On ink it keeps drawing.
         val penGrabs = !isFinger && (hit is AudioItem || hit is TextItem) && hit?.locked == false
         if (!isFinger && !free && !penGrabs) return
+        // A pen held on a recording or text wobbles more than a finger: allow it more before giving up.
+        longPressSlop = if (penGrabs) LONG_PRESS_SLOP * 3 * state.devicePxPerDp.coerceAtLeast(1.0) else LONG_PRESS_SLOP
         longPressStart = viewport
         longPressContent = content
         // A locked item cannot be picked up, so a held finger offers to release it instead. That is
@@ -3596,7 +3851,7 @@ class InteractionController(
     }
 
     private fun maybeCancelLongPress(viewport: Pt) {
-        if (longPressRunnable != null && viewport.distanceTo(longPressStart) > LONG_PRESS_SLOP) cancelLongPress()
+        if (longPressRunnable != null && viewport.distanceTo(longPressStart) > longPressSlop) cancelLongPress()
     }
 
     private fun cancelLongPress() {

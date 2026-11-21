@@ -41,7 +41,9 @@ class InkRecognizer {
      * Read [strokes], each a list of (x, y, timeMs) points, written in an area [width] × [height].
      * [done] gets the most likely text, or null.
      */
-    fun recognize(strokes: List<List<Triple<Float, Float, Long>>>, width: Float, height: Float, done: (String?) -> Unit) {
+    fun recognize(
+        strokes: List<List<Triple<Float, Float, Long>>>, width: Float, height: Float, preContext: String = "", done: (String?) -> Unit,
+    ) {
         val m = model ?: return done(null)
         val r = recognizer ?: DigitalInkRecognition.getClient(DigitalInkRecognizerOptions.builder(m).build()).also { recognizer = it }
         val ink = Ink.builder()
@@ -52,7 +54,7 @@ class InkRecognizer {
             ink.addStroke(sb.build())
         }
         val context = RecognitionContext.builder()
-            .setPreContext("")
+            .setPreContext(preContext)
             .setWritingArea(WritingArea(width.coerceAtLeast(1f), height.coerceAtLeast(1f)))
             .build()
         r.recognize(ink.build(), context)

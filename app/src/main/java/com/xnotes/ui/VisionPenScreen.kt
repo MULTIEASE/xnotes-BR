@@ -325,7 +325,7 @@ private fun PenDrawing(modifier: Modifier) {
  * instead of in the activity. Wrap the dialog window's callback to hear them too.
  */
 @Composable
-private fun CaptureDialogPenEvents() {
+internal fun CaptureDialogPenEvents(onGeneric: ((android.view.MotionEvent) -> Unit)? = null) {
     val view = androidx.compose.ui.platform.LocalView.current
     DisposableEffect(view) {
         val window = (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
@@ -339,6 +339,7 @@ private fun CaptureDialogPenEvents() {
                 }
 
                 override fun dispatchGenericMotionEvent(event: android.view.MotionEvent): Boolean {
+                    onGeneric?.invoke(event)
                     PenSignals.onMotion(event)
                     PenSignals.forwardMotion?.invoke(event)
                     return original.dispatchGenericMotionEvent(event)

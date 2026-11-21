@@ -2936,6 +2936,7 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         controller.penMinPressure = p.penMinPressure.toFloat()
         controller.penStartDelayMs = p.penStartDelayMs.toLong()
         controller.penGateFingers = p.penGateFingers
+        controller.scribbleAlways = p.scribbleErase
         com.xnotes.canvas.StylusButtonLatch.learnedKeys = buildMap {
             if (p.penButton1Key >= 0) put(p.penButton1Key, 1)
             if (p.penButton2Key >= 0) put(p.penButton2Key, 2)
@@ -6462,6 +6463,15 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         controller.clearSelection()
         controller.resetGestureState() // drop the outgoing note's fling/elastic so it can't bleed in
         clearPageSelection()
+        // xnotes BR: text the first handwriting-to-text version left far too wide (it hid the
+        // selection menu and covered the page) is fitted back to its words.
+        val measurer = com.xnotes.platform.AndroidTextMeasurer()
+        for (page in doc.pages) for (t in page.items) {
+            if (t is com.xnotes.core.model.TextItem && t.width > page.width * 2) {
+                val run = measurer.advances(t.text, t.font).sum() + measurer.lineHeight(t.font) * 0.4
+                t.width = run.coerceIn(20.0, (page.width - t.pos.x - 8.0).coerceAtLeast(60.0))
+            }
+        }
         state.document = doc
         rebuildPdfSource()
         adoptOpenPdf(doc) // outgoing note's PDF source is now closed; delete its temp file
@@ -6585,15 +6595,70 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
 
     // --- xnotes BR: inteligência de escrita (o que a caneta escreve vira texto digitado) ---
 
+    /** Automatic conversion is running (mode "auto", switched on). */
     var inkToText by mutableStateOf(false)
         private set
+    /** "auto" (converts a moment after the pen stops) or "select" (lasso the writing, then convert). */
+    val inkTextMode: String get() = preferences.inkTextMode
     private val inkRecognizer by lazy { com.xnotes.platform.InkRecognizer() }
+    private var inkModelReady = false
     private val inkPending = mutableListOf<Pair<com.xnotes.core.model.Stroke, Int>>()
     private val inkHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val inkFlush = Runnable { flushInkToText() }
     private var inkHooked = false
 
+    /** Font the converted text is typed in. */
+    fun inkTextFace(): com.xnotes.core.pal.FontFace =
+        preferences.inkTextFace.takeIf { it.isNotEmpty() }?.let { com.xnotes.core.pal.FontFace.fromId(it) } ?: controller.textFace
+
+    fun inkTextFaceLabel(): String = com.xnotes.platform.FontCatalog.label(inkTextFace())
+
+    fun inkFontChoices(): List<com.xnotes.platform.FontCatalog.Choice> = com.xnotes.platform.FontCatalog.choices()
+
+    /** Bumps when the conversion options change, so the bar redraws them. */
+    var inkOptsVersion by androidx.compose.runtime.mutableIntStateOf(0)
+
+    fun setInkTextOptions(mode: String? = null, delayMs: Int? = null, face: String? = null, size: Int? = null) {
+        inkOptsVersion++
+        val p = preferences
+        applyPreferences(
+            p.copy(
+                inkTextMode = mode ?: p.inkTextMode,
+                inkTextDelayMs = delayMs ?: p.inkTextDelayMs,
+                inkTextFace = face ?: p.inkTextFace,
+                inkTextSize = size ?: p.inkTextSize,
+            ),
+        )
+        if (mode == "select" && inkToText) {
+            inkToText = false
+            inkHandler.removeCallbacks(inkFlush)
+            inkPending.clear()
+        }
+    }
+
+    private fun withInkModel(then: () -> Unit) {
+        if (inkModelReady) return then()
+        message = appContext.getString(R.string.ink_to_text_preparing)
+        inkRecognizer.ensureModel { ok ->
+            if (ok) {
+                inkModelReady = true
+                then()
+            } else {
+                message = appContext.getString(R.string.ink_to_text_failed)
+            }
+        }
+    }
+
+    /** The notebook bar's "Escrita → texto" box: switch automatic conversion, or convert the selection. */
     fun toggleInkToText() {
+        if (preferences.inkTextMode == "select") {
+            if (canInkToTextSelection()) convertSelectionToText()
+            else {
+                notebookTool(Tool.LASSO)
+                message = appContext.getString(R.string.ink_to_text_select_hint)
+            }
+            return
+        }
         if (inkToText) {
             inkToText = false
             inkHandler.removeCallbacks(inkFlush)
@@ -6606,18 +6671,27 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
                 if (inkToText) {
                     inkPending.add(stroke to pi)
                     inkHandler.removeCallbacks(inkFlush)
-                    inkHandler.postDelayed(inkFlush, 1300L)
+                    inkHandler.postDelayed(inkFlush, preferences.inkTextDelayMs.toLong())
                 }
             }
         }
-        message = appContext.getString(R.string.ink_to_text_preparing)
-        inkRecognizer.ensureModel { ok ->
-            if (ok) {
-                inkToText = true
-                message = appContext.getString(R.string.ink_to_text_on)
-            } else {
-                message = appContext.getString(R.string.ink_to_text_failed)
-            }
+        withInkModel {
+            inkToText = true
+            message = appContext.getString(R.string.ink_to_text_on)
+        }
+    }
+
+    /** Whether the selection holds handwriting that can become typed text. */
+    override fun canInkToTextSelection(): Boolean = controller.selectedItems().any { it is com.xnotes.core.model.Stroke }
+
+    /** Turn the selected handwriting into typed text, line by line. */
+    override fun convertSelectionToText() {
+        val byPage = controller.selectedStrokesByPage()
+        if (byPage.isEmpty()) return
+        controller.clearSelection()
+        withInkModel {
+            message = appContext.getString(R.string.ink_to_text_working)
+            for ((pi, strokes) in byPage) convertRows(pi, controller.inkRows(strokes))
         }
     }
 
@@ -6625,24 +6699,42 @@ class Editor(context: Context, val pane: Pane = Pane.PRIMARY) : ToolPopupHost, S
         if (!inkToText || inkPending.isEmpty()) return
         val batch = inkPending.toList()
         inkPending.clear()
-        for ((pi, group) in batch.groupBy({ it.second }, { it.first })) {
-            var box = group.first().bounds()
-            for (s in group.drop(1)) box = box.union(s.bounds())
-            val points = group.map { s ->
-                val t0 = s.tAt(0)
-                (0 until s.sampleCount).map { i ->
-                    Triple((s.xAt(i) - box.left).toFloat(), (s.yAt(i) - box.top).toFloat(), (s.tAt(i) - t0).toLong() + i)
-                }
+        for ((pi, group) in batch.groupBy({ it.second }, { it.first })) convertRows(pi, controller.inkRows(group))
+    }
+
+    /** Recognise each written line in turn, so every line can carry on from the one typed before it. */
+    private fun convertRows(pi: Int, rows: List<List<com.xnotes.core.model.Stroke>>) {
+        val row = rows.firstOrNull() ?: return
+        var box = row.first().bounds()
+        for (s in row.drop(1)) box = box.union(s.bounds())
+        val t0 = row.minOf { it.tAt(0) }
+        var last = -1L
+        val points = row.sortedBy { it.tAt(0) }.map { s ->
+            (0 until s.sampleCount).map { i ->
+                last = maxOf(last + 1, (s.tAt(i) - t0).toLong())
+                Triple((s.xAt(i) - box.left).toFloat(), (s.yAt(i) - box.top).toFloat(), last)
             }
-            // Height of one written line in the recogniser's terms: the writing's own height.
-            inkRecognizer.recognize(points, box.w.toFloat(), box.h.toFloat()) { text ->
-                if (text != null && controller.replaceInkWithText(pi, group, text, controller.textFace)) {
+        }
+        val context = controller.inkJoinContext(pi, row)
+        inkRecognizer.recognize(points, box.w.toFloat(), box.h.toFloat(), context) { text ->
+            if (text != null) {
+                val fixed = preferences.inkTextSize.takeIf { it > 0 }?.toDouble()
+                if (controller.replaceInkWithText(pi, row, text, inkTextFace(), fixed)) {
                     refreshContent()
                     view.requestRender()
                 }
             }
+            convertRows(pi, rows.drop(1))
         }
     }
+
+    /** xnotes BR: open the keyboard on the selected text box. */
+    override fun editSelectedText() {
+        if (controller.editSelectedText()) view.requestRender()
+    }
+
+    override fun canEditSelectedText(): Boolean =
+        (controller.selectedItems().singleOrNull() as? com.xnotes.core.model.TextItem)?.locked == false
 
     // --- xnotes BR: Modo Leitura (estilo Kindle) ---
 
